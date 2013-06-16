@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo1", "OpenGLDemo1\OpenGLDemo1.vcxproj", "{D3C9D06E-CED8-48ED-8B06-251BE191A3B4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo2", "OpenGLDemo2\OpenGLDemo2.vcxproj", "{6CA712C1-E8D4-4402-837D-C4E02CF00CCE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3C9D06E-CED8-48ED-8B06-251BE191A3B4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D3C9D06E-CED8-48ED-8B06-251BE191A3B4}.Debug|Win32.Build.0 = Debug|Win32
+		{D3C9D06E-CED8-48ED-8B06-251BE191A3B4}.Release|Win32.ActiveCfg = Release|Win32
+		{D3C9D06E-CED8-48ED-8B06-251BE191A3B4}.Release|Win32.Build.0 = Release|Win32
+		{6CA712C1-E8D4-4402-837D-C4E02CF00CCE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6CA712C1-E8D4-4402-837D-C4E02CF00CCE}.Debug|Win32.Build.0 = Debug|Win32
+		{6CA712C1-E8D4-4402-837D-C4E02CF00CCE}.Release|Win32.ActiveCfg = Release|Win32
+		{6CA712C1-E8D4-4402-837D-C4E02CF00CCE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
