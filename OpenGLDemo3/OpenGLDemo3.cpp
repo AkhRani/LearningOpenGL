@@ -22,7 +22,7 @@ bool initializeSdl()
     }
     return true;
 }
-    
+
 void drawSquare()
 {
     glBegin(GL_TRIANGLES);
@@ -42,18 +42,32 @@ void drawSquare()
     glEnd();
 }
 
+void drawSquareAt(double x, double y)
+{
+    GLdouble translationMatrix[] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        x,    y, 0.0f, 1.0f
+    };
+    glLoadMatrixd(translationMatrix);
+    drawSquare();
+}
+
 int main(int argc, char *argv[])
 {
     if (initializeSdl()) {
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
         glOrtho(-ratio, ratio, -1, 1, -1, 1);
+        glMatrixMode(GL_MODELVIEW);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        drawSquare();
+        drawSquareAt(0, 0);
+        drawSquareAt(0.5, 0.5);
 
         SDL_GL_SwapBuffers();
-        SDL_Delay(2000);
+        SDL_Delay(5000);
         SDL_Quit();
     }
     return 0;
