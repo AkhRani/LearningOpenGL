@@ -1,4 +1,4 @@
-/* This is the simplest possible OpenGL application I can create, using SDL */
+/* Adding an orthographic projection to compensate for screen aspect ratio */
 #include "SDL.h"
 #include "SDL_opengl.h"
 
@@ -8,7 +8,7 @@
 
 #undef main     // This un-does SDL's #define main
 
-bool InitializeSdl()
+bool initializeSdl()
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
@@ -23,19 +23,36 @@ bool InitializeSdl()
     return true;
 }
     
+void drawSquare()
+{
+    glBegin(GL_TRIANGLES);
+    glColor3ub(255, 0, 0);
+    glVertex2f(-0.5f, 0.5f);
+    glColor3ub(0, 255, 0);
+    glVertex2f(0.5f, 0.5f);
+    glColor3ub(0, 0, 255);
+    glVertex2f(0.5f, -0.5f);
+
+    glColor3ub(0, 0, 255);
+    glVertex2f(0.5f, -0.5f);
+    glColor3ub(255, 255, 255);
+    glVertex2f(-0.5f, -0.5f);
+    glColor3ub(255, 0, 0);
+    glVertex2f(-0.5f, 0.5f);
+    glEnd();
+}
 
 int main(int argc, char *argv[])
 {
-    if (InitializeSdl()) {
+    if (initializeSdl()) {
+        glMatrixMode(GL_PROJECTION);
+        GLdouble ratio = 640.0f / 480.0f;
+        glOrtho(-ratio, ratio, -1, 1, -1, 1);
+
         glClear(GL_COLOR_BUFFER_BIT);
-        glBegin(GL_TRIANGLES);
-        glVertex2f(0.0f, 1.0f);
-        glVertex2f(1.0f, -1.0f);
-        glVertex2f(-1.0f, -1.0f);
-        glEnd();
+        drawSquare();
 
         SDL_GL_SwapBuffers();
-        // Wait to give us a chance to see the image
         SDL_Delay(2000);
         SDL_Quit();
     }
