@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FA6A57ED-DB65-4E44-8E6C-A32A75FD79E5}</ProjectGuid>
+    <ProjectGuid>{726E0E67-A499-4D7C-8325-688C70E380D3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OpenGLDemo1</RootNamespace>
   </PropertyGroup>

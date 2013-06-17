@@ -60,7 +60,7 @@ void drawSquareAt(double x, double y)
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
-        x,    y, 0.0f, 1.0f
+        x,    y,    0.0f, 1.0f
     };
     glLoadMatrixd(translationMatrix);
     drawSquare();

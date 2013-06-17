@@ -13,6 +13,10 @@
  *
  * Demo 4:
  * Switched from glBegin/glEnd to glDrawArrays
+ *
+ * Demo 5:
+ * Refactored square drawing, added scaling factor to model/view matrix.
+ * Added Pentagon to show combined vertex/color buffer.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -38,37 +42,69 @@ bool initializeSdl()
     return true;
 }
 
-void drawSquare()
+int setupSquare()
 {
     static const GLfloat squareCoords[] = {
-        -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f
-        ,0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
+        -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
     };
     glVertexPointer(2, GL_FLOAT, 0, squareCoords);
 
-    static const GLubyte squareColors[] = {
-        255, 0, 0
-        ,0, 255, 0
-        ,0, 0, 255
-        ,0, 0, 255
-        ,255, 255, 255
-        ,255, 0, 0
+    static const GLfloat squareColors[] = {
+        1.0f, 0, 0,
+        0, 1.0f, 0,
+        0, 0, 1.0f,
+        0, 0, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 0, 0
     };
-    glColorPointer(3, GL_UNSIGNED_BYTE, 0, squareColors);
+    glColorPointer(3, GL_FLOAT, 0, squareColors);
 
-    glDrawArrays(GL_TRIANGLES, 0, 12);
+    return 6;
 }
 
-void drawSquareAt(double x, double y)
+int setupPentagon()
 {
-    GLdouble translationMatrix[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        x,    y, 0.0f, 1.0f
+    static const GLfloat pentagonData[] = {
+        0.f, .5f,               // X, Y
+        1.f, 0, 0,              // Color (Red)
+        .47f, .15f,             // X, Y
+        0, 1.0f, 0,             // Color (Green)
+        .29f, -.4f,             // X, Y
+        0, 0, 1.0f,             // Color (Blue)
+
+         .29f, -.4f,
+        0, 0, 1.0f,
+         -.29f, -.4f,
+        1.0f, 1.0f, 1.0f,
+         0.f, .5f,
+        1.0f, 0, 0,
+
+         0.f, .5f,
+        1.0f, 0, 0,
+         -.29f, -.4f,
+        1.0f, 1.0f, 1.0f,
+         -.47f, .15f,
+        1.0f, 1.0f, 0,
     };
-    glLoadMatrixd(translationMatrix);
-    drawSquare();
+    glVertexPointer(2, GL_FLOAT, sizeof(GLfloat)*5, &pentagonData[0]);
+    glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*5, &pentagonData[2]);
+
+    return 9;
+}
+
+void drawTrianglesAt(double x, double y, double scale, int indexCount)
+{
+    glMatrixMode(GL_MODELVIEW);
+    GLdouble modelViewMatrix[] = {
+        scale, 0.0f,  0.0f, 0.0f,
+        0.0f,  scale, 0.0f, 0.0f,
+        0.0f,  0.0f,  1.0f, 0.0f,
+        x,     y,     0.0f, 1.0f
+    };
+    glLoadMatrixd(modelViewMatrix);
+
+    glDrawArrays(GL_TRIANGLES, 0, indexCount);
 }
 
 int main(int argc, char *argv[])
@@ -80,11 +116,16 @@ int main(int argc, char *argv[])
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
         glOrtho(-ratio, ratio, -1, 1, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        drawSquareAt(0, 0);
-        drawSquareAt(0.5, 0.5);
+        int indexCount = setupSquare();
+        drawTrianglesAt(0, 0, 0.5, indexCount);
+        drawTrianglesAt(0.5, 0.5, 0.25, indexCount);
+
+        indexCount = setupPentagon();
+        drawTrianglesAt(-.5, -.5, .5, indexCount);
+        drawTrianglesAt(-.5, .5, .5, indexCount);
+        drawTrianglesAt(.5, -.5, .5, indexCount);
 
         SDL_GL_SwapBuffers();
         SDL_Delay(3000);

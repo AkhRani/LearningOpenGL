@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo3", "OpenGLDemo3\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo4", "OpenGLDemo4\OpenGLDemo4.vcxproj", "{FA6A57ED-DB65-4E44-8E6C-A32A75FD79E5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo5", "OpenGLDemo5\OpenGLDemo5.vcxproj", "{726E0E67-A499-4D7C-8325-688C70E380D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{FA6A57ED-DB65-4E44-8E6C-A32A75FD79E5}.Debug|Win32.Build.0 = Debug|Win32
 		{FA6A57ED-DB65-4E44-8E6C-A32A75FD79E5}.Release|Win32.ActiveCfg = Release|Win32
 		{FA6A57ED-DB65-4E44-8E6C-A32A75FD79E5}.Release|Win32.Build.0 = Release|Win32
+		{726E0E67-A499-4D7C-8325-688C70E380D3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{726E0E67-A499-4D7C-8325-688C70E380D3}.Debug|Win32.Build.0 = Debug|Win32
+		{726E0E67-A499-4D7C-8325-688C70E380D3}.Release|Win32.ActiveCfg = Release|Win32
+		{726E0E67-A499-4D7C-8325-688C70E380D3}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

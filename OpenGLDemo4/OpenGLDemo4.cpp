@@ -41,22 +41,22 @@ bool initializeSdl()
 void drawSquare()
 {
     static const GLfloat squareCoords[] = {
-        -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f
-        ,0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
+        -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
     };
     glVertexPointer(2, GL_FLOAT, 0, squareCoords);
 
     static const GLubyte squareColors[] = {
+        255, 0, 0,
+        0, 255, 0,
+        0, 0, 255,
+        0, 0, 255,
+        255, 255, 255,
         255, 0, 0
-        ,0, 255, 0
-        ,0, 0, 255
-        ,0, 0, 255
-        ,255, 255, 255
-        ,255, 0, 0
     };
     glColorPointer(3, GL_UNSIGNED_BYTE, 0, squareColors);
 
-    glDrawArrays(GL_TRIANGLES, 0, 12);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void drawSquareAt(double x, double y)
@@ -65,7 +65,7 @@ void drawSquareAt(double x, double y)
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
-        x,    y, 0.0f, 1.0f
+        x,    y,    0.0f, 1.0f
     };
     glLoadMatrixd(translationMatrix);
     drawSquare();
