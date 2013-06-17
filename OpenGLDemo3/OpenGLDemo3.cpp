@@ -25,21 +25,23 @@ bool initializeSdl()
 
 void drawSquare()
 {
-    glBegin(GL_TRIANGLES);
-    glColor3ub(255, 0, 0);
-    glVertex2f(-0.5f, 0.5f);
-    glColor3ub(0, 255, 0);
-    glVertex2f(0.5f, 0.5f);
-    glColor3ub(0, 0, 255);
-    glVertex2f(0.5f, -0.5f);
+    static const GLfloat squareCoords[] = {
+        -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f
+        ,0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
+    };
+    glVertexPointer(2, GL_FLOAT, 0, squareCoords);
 
-    glColor3ub(0, 0, 255);
-    glVertex2f(0.5f, -0.5f);
-    glColor3ub(255, 255, 255);
-    glVertex2f(-0.5f, -0.5f);
-    glColor3ub(255, 0, 0);
-    glVertex2f(-0.5f, 0.5f);
-    glEnd();
+    static const GLubyte squareColors[] = {
+        255, 0, 0
+        ,0, 255, 0
+        ,0, 0, 255
+        ,0, 0, 255
+        ,255, 255, 255
+        ,255, 0, 0
+    };
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, squareColors);
+
+    glDrawArrays(GL_TRIANGLES, 0, 12);
 }
 
 void drawSquareAt(double x, double y)
@@ -57,6 +59,9 @@ void drawSquareAt(double x, double y)
 int main(int argc, char *argv[])
 {
     if (initializeSdl()) {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
         glOrtho(-ratio, ratio, -1, 1, -1, 1);
@@ -67,7 +72,7 @@ int main(int argc, char *argv[])
         drawSquareAt(0.5, 0.5);
 
         SDL_GL_SwapBuffers();
-        SDL_Delay(5000);
+        SDL_Delay(3000);
         SDL_Quit();
     }
     return 0;
