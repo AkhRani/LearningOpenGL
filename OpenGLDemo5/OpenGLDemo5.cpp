@@ -66,26 +66,20 @@ int setupSquare()
 int setupPentagon()
 {
     static const GLfloat pentagonData[] = {
-        0.f, .5f,               // X, Y
-        1.f, 0, 0,              // Color (Red)
-        .47f, .15f,             // X, Y
-        0, 1.0f, 0,             // Color (Green)
-        .29f, -.4f,             // X, Y
-        0, 0, 1.0f,             // Color (Blue)
+        // X, Y, Color (Red)
+        0.f, .5f, 1.f, 0, 0,
+        // X, Y, Color (Green)
+        .47f, .15f, 0, 1.0f, 0,
+        // X, Y, Color (Blue)
+        .29f, -.4f, 0, 0, 1.0f,
 
-         .29f, -.4f,
-        0, 0, 1.0f,
-         -.29f, -.4f,
-        1.0f, 1.0f, 1.0f,
-         0.f, .5f,
-        1.0f, 0, 0,
+         .29f, -.4f, 0, 0, 1.0f,
+         -.29f, -.4f, 1.0f, 1.0f, 1.0f,
+         0.f, .5f, 1.0f, 0, 0,
 
-         0.f, .5f,
-        1.0f, 0, 0,
-         -.29f, -.4f,
-        1.0f, 1.0f, 1.0f,
-         -.47f, .15f,
-        1.0f, 1.0f, 0,
+         0.f, .5f, 1.0f, 0, 0,
+         -.29f, -.4f, 1.0f, 1.0f, 1.0f,
+         -.47f, .15f, 1.0f, 1.0f, 0,
     };
     glVertexPointer(2, GL_FLOAT, sizeof(GLfloat)*5, &pentagonData[0]);
     glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*5, &pentagonData[2]);
@@ -97,10 +91,10 @@ void drawTrianglesAt(double x, double y, double scale, int indexCount)
 {
     glMatrixMode(GL_MODELVIEW);
     GLdouble modelViewMatrix[] = {
-        scale, 0.0f,  0.0f, 0.0f,
-        0.0f,  scale, 0.0f, 0.0f,
-        0.0f,  0.0f,  1.0f, 0.0f,
-        x,     y,     0.0f, 1.0f
+        scale, 0.,    0., 0.,
+        0.,    scale, 0., 0.,
+        0.,    0.,    1., 0.,
+        x,     y,     0., 1.
     };
     glLoadMatrixd(modelViewMatrix);
 
