@@ -76,15 +76,21 @@ void setupSquare(ShapeInfo *pInfo)
 
 void setupPentagon(ShapeInfo *pInfo)
 {
-    static const GLfloat pentagonData[] = {
-        0.f, .5f, 1.f, 0, 0,
-        .47f, .15f, 0, 1.0f, 0,
-        .29f, -.4f, 0, 0, 1.0f,
-        -.29f, -.4f, 1.0f, 1.0f, 1.0f,
-        -.47f, .15f, 1.0f, 1.0f, 0,
+    typedef struct {
+        GLfloat x, y;
+        GLubyte red, green, blue;
+    } CoordInfo;
+
+    static const CoordInfo pentagonData[] = {
+        { 0.f, .5f,    255, 0, 0 },
+        { .47f, .15f,  0, 255, 0 },
+        { .29f, -.4f,  0, 0, 255 },
+        { -.29f, -.4f, 255, 255, 255 },
+        { -.47f, .15f, 255, 255, 0 },
     };
-    glVertexPointer(2, GL_FLOAT, sizeof(GLfloat)*5, &pentagonData[0]);
-    glColorPointer(3, GL_FLOAT, sizeof(GLfloat)*5, &pentagonData[2]);
+
+    glVertexPointer(2, GL_FLOAT, sizeof(CoordInfo), &pentagonData[0].x);
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(CoordInfo), &pentagonData[0].red);
 
     static const GLushort indices[] = { 0, 1, 2, 2, 3, 0, 0, 3, 4 };
 

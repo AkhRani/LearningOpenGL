@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo5", "OpenGLDemo5\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo6", "OpenGLDemo6\OpenGLDemo6.vcxproj", "{EBE6989C-E0DE-4FA3-85E3-C2B497132687}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLDemo7", "OpenGLDemo7\OpenGLDemo7.vcxproj", "{CCD2F9B5-504C-4069-820F-880B4E69E0AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -43,6 +45,10 @@ Global
 		{EBE6989C-E0DE-4FA3-85E3-C2B497132687}.Debug|Win32.Build.0 = Debug|Win32
 		{EBE6989C-E0DE-4FA3-85E3-C2B497132687}.Release|Win32.ActiveCfg = Release|Win32
 		{EBE6989C-E0DE-4FA3-85E3-C2B497132687}.Release|Win32.Build.0 = Release|Win32
+		{CCD2F9B5-504C-4069-820F-880B4E69E0AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CCD2F9B5-504C-4069-820F-880B4E69E0AF}.Debug|Win32.Build.0 = Debug|Win32
+		{CCD2F9B5-504C-4069-820F-880B4E69E0AF}.Release|Win32.ActiveCfg = Release|Win32
+		{CCD2F9B5-504C-4069-820F-880B4E69E0AF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
