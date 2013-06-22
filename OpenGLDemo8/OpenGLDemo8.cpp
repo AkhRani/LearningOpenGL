@@ -23,6 +23,10 @@
  *
  * Demo 7:
  * Added simple animation.
+ *
+ * Demo 8:
+ * Removed square, animation now includes Z component.
+ * changed projection matrix from orthoganal to frustum.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -57,30 +61,6 @@ bool initializeSdl()
     return true;
 }
 
-void setupSquare(ShapeInfo *pInfo)
-{
-    static const GLfloat squareCoords[] = {
-        -0.5f, 0.5f,
-        0.5f, 0.5f,
-        0.5f, -0.5f,
-        -0.5f, -0.5f,
-    };
-    glVertexPointer(2, GL_FLOAT, 0, squareCoords);
-
-    static const GLfloat squareColors[] = {
-        1.0f, 0, 0,
-        0, 1.0f, 0,
-        0, 0, 1.0f,
-        1.0f, 1.0f, 1.0f,
-    };
-    glColorPointer(3, GL_FLOAT, 0, squareColors);
-
-    static const GLushort indices[] = { 0, 1, 2, 2, 3, 0 };
-
-    pInfo->count = 6;
-    pInfo->indices = indices;
-}
-
 void setupPentagon(ShapeInfo *pInfo)
 {
     typedef struct {
@@ -105,16 +85,12 @@ void setupPentagon(ShapeInfo *pInfo)
     pInfo->indices = indices;
 }
 
-void drawTrianglesAt(double x, double y, double scale, ShapeInfo *info)
+void drawTrianglesAt(double x, double y, double z, double scale, ShapeInfo *info)
 {
     glMatrixMode(GL_MODELVIEW);
-    GLdouble modelViewMatrix[] = {
-        scale, 0.,    0., 0.,
-        0.,    scale, 0., 0.,
-        0.,    0.,    1., 0.,
-        x,     y,     0., 1.
-    };
-    glLoadMatrixd(modelViewMatrix);
+    glLoadIdentity();
+    gluLookAt(-x, -y, -z+1., -x, -y, -z, 0., 1., 0.);
+    glScaled(scale, scale, 1.);
 
     glDrawElements(GL_TRIANGLES, info->count, GL_UNSIGNED_SHORT, info->indices);
 }
@@ -127,21 +103,19 @@ int main(int argc, char *argv[])
 
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
-        glOrtho(-ratio, ratio, -1, 1, -1, 1);
+        // glOrtho(-ratio, ratio, -1, 1, -1, 3.);
+        glFrustum(-ratio, ratio, -1., 1., 1., 3.);
 
         for (int i = 0; i < 400; i++) {
+            double depth = -i/200.;
             double sinVal = sin(i/30.);
             double cosVal = cos(i/30.);
             glClear(GL_COLOR_BUFFER_BIT);
             ShapeInfo info;
-            setupSquare(&info);
-            drawTrianglesAt(0, 0, 0.5, &info);
-            drawTrianglesAt(0.707 * cosVal, 0.707 * sinVal, 0.25, &info);
-
             setupPentagon(&info);
-            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, .5, &info);
-            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, .5, &info);
-            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, .5, &info);
+            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, depth, .5, &info);
+            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, depth, .4, &info);
+            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, depth, .3, &info);
 
             SDL_GL_SwapBuffers();
         }
