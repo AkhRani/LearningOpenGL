@@ -27,6 +27,13 @@
  * Demo 8:
  * Removed square, animation now includes Z component.
  * changed projection matrix from orthoganal to frustum.
+ *
+ * Demo 9:
+ * Changed to 3D solid shapes.
+ * Added rotyDegrees to drawTrianglesAt.
+ * DrawTrianglesAt now calls glDrawArrays or glDrawElements, as needed.
+ * Added defines to clarify glFrustum parameters.
+ * Added depth testing.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -34,9 +41,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 #undef main     // This un-does SDL's #define main
+
+#define CENTER_Z        6.0     // Distance from camera
+#define DEPTH_OF_FIELD  4.0
 
 typedef struct {
     const GLushort *indices;
@@ -61,61 +73,76 @@ bool initializeSdl()
     return true;
 }
 
-void setupPentagon(ShapeInfo *pInfo)
+void setupPyramid(ShapeInfo *pInfo)
 {
     typedef struct {
-        GLfloat x, y;
+        GLfloat x, y, z;
         GLubyte red, green, blue;
     } CoordInfo;
 
     static const CoordInfo pentagonData[] = {
-        { 0.f, .5f,    255, 0, 0 },
-        { .47f, .15f,  0, 255, 0 },
-        { .29f, -.4f,  0, 0, 255 },
-        { -.29f, -.4f, 255, 255, 255 },
-        { -.47f, .15f, 255, 255, 0 },
+        // Bottom
+        { 0.0f, 0.f, .5f, 255, 0, 0},
+        { 0.433f, 0.f, -.25f, 255, 0, 0},
+        { -0.433f, 0.f, -.25f, 255, 0, 0},
+        // Side 1
+        { -0.433f, 0.f, -.25f, 0, 0, 255},
+        { 0.433f, 0.f, -.25f, 0, 0, 255},
+        { 0.0f, 0.75f, 0.f, 0, 0, 255},
+        // Side 2
+        { -0.433f, 0.f, -.25f, 255, 255, 0},
+        { 0.0f, 0.f, .5f, 255, 255, 0},
+        { 0.0f, 0.75f, 0.f, 255, 255, 0},
+        // Side 3
+        { 0.0f, 0.f, .5f, 0, 255, 0},
+        { 0.433f, 0.f, -.25f, 0, 255, 0},
+        { 0.0f, 0.75f, 0.f, 0, 255, 0},
     };
 
-    glVertexPointer(2, GL_FLOAT, sizeof(CoordInfo), &pentagonData[0].x);
+    glVertexPointer(3, GL_FLOAT, sizeof(CoordInfo), &pentagonData[0].x);
     glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(CoordInfo), &pentagonData[0].red);
 
-    static const GLushort indices[] = { 0, 1, 2, 2, 3, 0, 0, 3, 4 };
-
-    pInfo->count = 9;
-    pInfo->indices = indices;
+    pInfo->count = 12;
+    pInfo->indices = NULL;
 }
 
-void drawTrianglesAt(double x, double y, double z, double scale, ShapeInfo *info)
+void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *info)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(-x, -y, -z+1., -x, -y, -z, 0., 1., 0.);
-    glScaled(scale, scale, 1.);
+    gluLookAt(-x, -y, -z+CENTER_Z, -x, -y, -z, 0., 1., 0.);
+    glRotated(rotyDegrees, 0., 1., 0.);
+    glScaled(scale, scale, scale);
 
-    glDrawElements(GL_TRIANGLES, info->count, GL_UNSIGNED_SHORT, info->indices);
+    if (info->indices) {
+        glDrawElements(GL_TRIANGLES, info->count, GL_UNSIGNED_SHORT, info->indices);
+    }
+    else {
+        glDrawArrays(GL_TRIANGLES, 0, info->count);
+    }
 }
 
 int main(int argc, char *argv[])
 {
     if (initializeSdl()) {
+        glEnable(GL_DEPTH_TEST);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
 
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
-        // glOrtho(-ratio, ratio, -1, 1, -1, 3.);
-        glFrustum(-ratio, ratio, -1., 1., 1., 3.);
+        // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+        glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
         for (int i = 0; i < 400; i++) {
             double depth = -i/200.;
-            double sinVal = sin(i/30.);
-            double cosVal = cos(i/30.);
-            glClear(GL_COLOR_BUFFER_BIT);
+            double angle = i/30.;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             ShapeInfo info;
-            setupPentagon(&info);
-            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, depth, .5, &info);
-            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, depth, .4, &info);
-            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, depth, .3, &info);
+            setupPyramid(&info);
+            drawTrianglesAt(cos(angle), sin(angle), depth, i*3., 2., &info);
+            drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), depth, i, 1.5, &info);
+            drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), depth, i*10., 1.2, &info);
 
             SDL_GL_SwapBuffers();
         }
