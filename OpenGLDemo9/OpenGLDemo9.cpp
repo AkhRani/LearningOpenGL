@@ -9,7 +9,7 @@
  *
  * Demo 3:
  * Applied a simple translation matrix to draw the square in different
- * locations.
+ * locations, and moved vertex data into an array.
  *
  * Demo 4:
  * Switched from glBegin/glEnd to glDrawArrays
@@ -32,7 +32,6 @@
  * Changed to 3D solid shapes.
  * Added rotyDegrees to drawTrianglesAt.
  * DrawTrianglesAt now calls glDrawArrays or glDrawElements, as needed.
- * Added defines to clarify glFrustum parameters.
  * Added depth testing.
  */
 #include "SDL.h"
@@ -78,9 +77,9 @@ void setupPyramid(ShapeInfo *pInfo)
     typedef struct {
         GLfloat x, y, z;
         GLubyte red, green, blue;
-    } CoordInfo;
+    } VertexInfo;
 
-    static const CoordInfo pentagonData[] = {
+    static const VertexInfo pentagonData[] = {
         // Bottom
         { 0.0f, 0.f, .5f, 255, 0, 0},
         { 0.433f, 0.f, -.25f, 255, 0, 0},
@@ -99,8 +98,8 @@ void setupPyramid(ShapeInfo *pInfo)
         { 0.0f, 0.75f, 0.f, 0, 255, 0},
     };
 
-    glVertexPointer(3, GL_FLOAT, sizeof(CoordInfo), &pentagonData[0].x);
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(CoordInfo), &pentagonData[0].red);
+    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pentagonData[0].x);
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pentagonData[0].red);
 
     pInfo->count = 12;
     pInfo->indices = NULL;

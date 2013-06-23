@@ -9,7 +9,7 @@
  *
  * Demo 3:
  * Applied a simple translation matrix to draw the square in different
- * locations.
+ * locations, and moved vertex data into an array.
  *
  * Demo 4:
  * Switched from glBegin/glEnd to glDrawArrays

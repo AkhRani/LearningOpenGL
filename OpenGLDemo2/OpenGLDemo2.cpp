@@ -1,4 +1,13 @@
-/* Adding an orthographic projection to compensate for screen aspect ratio */
+/* 
+ * Demo 1:
+ * Started with the simplest OpenGL program I could make, using SDL.
+ *
+ * Demo 2:
+ * Combined two triangles to make a square, added color, and used an
+ * orthographic projection matrix to compensate for the window's
+ * aspect ratio.
+ */
+
 #include "SDL.h"
 #include "SDL_opengl.h"
 

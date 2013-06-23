@@ -1,4 +1,7 @@
-/* This is the simplest possible OpenGL application I can create, using SDL */
+/* 
+ * Demo 1:
+ * Started with the simplest OpenGL program I could make, using SDL.
+ */
 #include "SDL.h"
 #include "SDL_opengl.h"
 

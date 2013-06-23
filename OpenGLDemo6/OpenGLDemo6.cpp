@@ -9,7 +9,7 @@
  *
  * Demo 3:
  * Applied a simple translation matrix to draw the square in different
- * locations.
+ * locations, and moved vertex data into an array.
  *
  * Demo 4:
  * Switched from glBegin/glEnd to glDrawArrays
@@ -79,9 +79,9 @@ void setupPentagon(ShapeInfo *pInfo)
     typedef struct {
         GLfloat x, y;
         GLubyte red, green, blue;
-    } CoordInfo;
+    } VertexInfo;
 
-    static const CoordInfo pentagonData[] = {
+    static const VertexInfo pentagonData[] = {
         { 0.f, .5f,    255, 0, 0 },
         { .47f, .15f,  0, 255, 0 },
         { .29f, -.4f,  0, 0, 255 },
@@ -89,8 +89,8 @@ void setupPentagon(ShapeInfo *pInfo)
         { -.47f, .15f, 255, 255, 0 },
     };
 
-    glVertexPointer(2, GL_FLOAT, sizeof(CoordInfo), &pentagonData[0].x);
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(CoordInfo), &pentagonData[0].red);
+    glVertexPointer(2, GL_FLOAT, sizeof(VertexInfo), &pentagonData[0].x);
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pentagonData[0].red);
 
     static const GLushort indices[] = { 0, 1, 2, 2, 3, 0, 0, 3, 4 };
 

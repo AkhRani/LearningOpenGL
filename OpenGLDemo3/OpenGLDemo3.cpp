@@ -9,7 +9,7 @@
  *
  * Demo 3:
  * Applied a simple translation matrix to draw the square in different
- * locations.
+ * locations, and moved vertex data into an array.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -37,20 +37,25 @@ bool initializeSdl()
 
 void drawSquare()
 {
-    glBegin(GL_TRIANGLES);
-    glColor3ub(255, 0, 0);
-    glVertex2f(-0.5f, 0.5f);
-    glColor3ub(0, 255, 0);
-    glVertex2f(0.5f, 0.5f);
-    glColor3ub(0, 0, 255);
-    glVertex2f(0.5f, -0.5f);
+    typedef struct {
+        GLfloat x, y;
+        GLubyte red, green, blue;
+    } VertexInfo;
 
-    glColor3ub(0, 0, 255);
-    glVertex2f(0.5f, -0.5f);
-    glColor3ub(255, 255, 255);
-    glVertex2f(-0.5f, -0.5f);
-    glColor3ub(255, 0, 0);
-    glVertex2f(-0.5f, 0.5f);
+    static const VertexInfo squareVertices[] = {
+        {-0.5f, 0.5f,255, 0, 0},
+        {0.5f, 0.5f, 0, 255, 0},
+        {0.5f, -0.5f, 0, 0, 255},
+        {.5f, -0.5f, 0, 0, 255},
+        {-0.5f, -0.5f, 255, 255, 255},
+        {-0.5f, 0.5f, 255, 0, 0}
+    };
+
+    glBegin(GL_TRIANGLES);
+    for (int i = 0; i < 6; i++) {
+        glColor3ub(squareVertices[i].red, squareVertices[i].green, squareVertices[i].blue);
+        glVertex2f(squareVertices[i].x, squareVertices[i].y);
+    }
     glEnd();
 }
 
@@ -79,7 +84,7 @@ int main(int argc, char *argv[])
         drawSquareAt(0.5, 0.5);
 
         SDL_GL_SwapBuffers();
-        SDL_Delay(5000);
+        SDL_Delay(3000);
         SDL_Quit();
     }
     return 0;
