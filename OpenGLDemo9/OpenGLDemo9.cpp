@@ -79,7 +79,7 @@ void setupPyramid(ShapeInfo *pInfo)
         GLubyte red, green, blue;
     } VertexInfo;
 
-    static const VertexInfo pentagonData[] = {
+    static const VertexInfo pyramidData[] = {
         // Bottom
         { 0.0f, 0.f, .5f, 255, 0, 0},
         { 0.433f, 0.f, -.25f, 255, 0, 0},
@@ -98,8 +98,8 @@ void setupPyramid(ShapeInfo *pInfo)
         { 0.0f, 0.75f, 0.f, 0, 255, 0},
     };
 
-    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pentagonData[0].x);
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pentagonData[0].red);
+    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pyramidData[0].x);
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pyramidData[0].red);
 
     pInfo->count = 12;
     pInfo->indices = NULL;

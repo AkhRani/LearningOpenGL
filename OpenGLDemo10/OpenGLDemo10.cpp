@@ -33,18 +33,17 @@
  * Added rotyDegrees to drawTrianglesAt.
  * DrawTrianglesAt now calls glDrawArrays or glDrawElements, as needed.
  * Added depth testing.
+ *
+ * Demo 10:
+ * Switched from SDL to glut.
  */
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <glut.h>
+#include <GL/GL.h>
 
 #include <stdio.h>
-#include <string.h>
-#include <assert.h>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-
-#undef main     // This un-does SDL's #define main
 
 #define CENTER_Z        6.0     // Distance from camera
 #define DEPTH_OF_FIELD  4.0
@@ -54,23 +53,6 @@ typedef struct {
     GLsizei count;
 } ShapeInfo;
 
-bool initializeSdl()
-{
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        printf("Unable to initialize SDL: %s\n", SDL_GetError());
-        return false;
-    }
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-
-    SDL_Surface *screen = SDL_SetVideoMode(640, 480, 16, SDL_OPENGL);
-    if (!screen) {
-        printf("Unable to set video mode: %s\n", SDL_GetError());
-        return false;
-    }
-    return true;
-}
 
 void setupPyramid(ShapeInfo *pInfo)
 {
@@ -79,7 +61,7 @@ void setupPyramid(ShapeInfo *pInfo)
         GLubyte red, green, blue;
     } VertexInfo;
 
-    static const VertexInfo pentagonData[] = {
+    static const VertexInfo pyramidData[] = {
         // Bottom
         { 0.0f, 0.f, .5f, 255, 0, 0},
         { 0.433f, 0.f, -.25f, 255, 0, 0},
@@ -98,8 +80,8 @@ void setupPyramid(ShapeInfo *pInfo)
         { 0.0f, 0.75f, 0.f, 0, 255, 0},
     };
 
-    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pentagonData[0].x);
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pentagonData[0].red);
+    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pyramidData[0].x);
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pyramidData[0].red);
 
     pInfo->count = 12;
     pInfo->indices = NULL;
@@ -121,31 +103,45 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
     }
 }
 
+void doDisplay()
+{
+    int i = 0;
+    double depth = -i/200.;
+    double angle = i/30.;
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ShapeInfo info;
+    setupPyramid(&info);
+    drawTrianglesAt(cos(angle), sin(angle), depth, i*3., 2., &info);
+    drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), depth, i, 1.5, &info);
+    drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), depth, i*10., 1.2, &info);
+    glutSwapBuffers();
+}
+
+void handleKey(unsigned char key, int x, int y)
+{
+    exit(0);
+}
+
 int main(int argc, char *argv[])
 {
-    if (initializeSdl()) {
-        glEnable(GL_DEPTH_TEST);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowSize(640, 480);
+    glutCreateWindow(argv[0]);
 
-        glMatrixMode(GL_PROJECTION);
-        GLdouble ratio = 640.0f / 480.0f;
-        // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
-        glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+    glEnable(GL_DEPTH_TEST);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
 
-        for (int i = 0; i < 400; i++) {
-            double depth = -i/200.;
-            double angle = i/30.;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            ShapeInfo info;
-            setupPyramid(&info);
-            drawTrianglesAt(cos(angle), sin(angle), depth, i*3., 2., &info);
-            drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), depth, i, 1.5, &info);
-            drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), depth, i*10., 1.2, &info);
+    glMatrixMode(GL_PROJECTION);
+    GLdouble ratio = 640.0f / 480.0f;
+    // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+    glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
-            SDL_GL_SwapBuffers();
-        }
-        SDL_Quit();
-    }
+    glutDisplayFunc(doDisplay);
+    glutKeyboardFunc(handleKey);
+
+    glutMainLoop();
+
     return 0;
 }
