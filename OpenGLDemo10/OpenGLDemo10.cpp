@@ -36,6 +36,7 @@
  *
  * Demo 10:
  * Switched from SDL to glut.
+ * See http://openglbook.com/setting-up-opengl-glew-and-freeglut-in-visual-c/
  */
 #include <glut.h>
 #include <GL/GL.h>
@@ -103,7 +104,7 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
     }
 }
 
-void doDisplay()
+void onDisplay()
 {
     int i = 0;
     double depth = -i/200.;
@@ -117,7 +118,7 @@ void doDisplay()
     glutSwapBuffers();
 }
 
-void handleKey(unsigned char key, int x, int y)
+void onKey(unsigned char key, int x, int y)
 {
     exit(0);
 }
@@ -138,8 +139,8 @@ int main(int argc, char *argv[])
     // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
     glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
-    glutDisplayFunc(doDisplay);
-    glutKeyboardFunc(handleKey);
+    glutDisplayFunc(onDisplay);
+    glutKeyboardFunc(onKey);
 
     glutMainLoop();
 

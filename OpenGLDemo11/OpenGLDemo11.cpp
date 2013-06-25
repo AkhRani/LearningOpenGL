@@ -36,9 +36,18 @@
  *
  * Demo 10:
  * Switched from SDL to glut.
+ * See http://openglbook.com/setting-up-opengl-glew-and-freeglut-in-visual-c/
+ *
+ * Demo 11:
+ * Added glew for VSync, re-added animation
  */
-#include <glut.h>
+#include <windows.h>
+#include <WinGDI.h>
+
+#include <GL/glew.h>
+#include <GL/wglew.h>
 #include <GL/GL.h>
+#include <glut.h>
 
 #include <stdio.h>
 
@@ -46,13 +55,12 @@
 #include <math.h>
 
 #define CENTER_Z        6.0     // Distance from camera
-#define DEPTH_OF_FIELD  4.0
+#define DEPTH_OF_FIELD  5.0
 
 typedef struct {
     const GLushort *indices;
     GLsizei count;
 } ShapeInfo;
-
 
 void setupPyramid(ShapeInfo *pInfo)
 {
@@ -103,9 +111,12 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
     }
 }
 
-void doDisplay()
+void onDisplay()
 {
-    int i = 0;
+    static int i = 0;
+    if (i < 400) {
+        i++;
+    }
     double depth = -i/200.;
     double angle = i/30.;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,7 +128,7 @@ void doDisplay()
     glutSwapBuffers();
 }
 
-void handleKey(unsigned char key, int x, int y)
+void onKey(unsigned char key, int x, int y)
 {
     exit(0);
 }
@@ -129,6 +140,10 @@ int main(int argc, char *argv[])
     glutInitWindowSize(640, 480);
     glutCreateWindow(argv[0]);
 
+    // glewInit (called after glutCreateWindow) sets up wglSwapIntervalEXT pointer
+    glewInit();
+    wglSwapIntervalEXT(1);
+
     glEnable(GL_DEPTH_TEST);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -138,8 +153,9 @@ int main(int argc, char *argv[])
     // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
     glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
-    glutDisplayFunc(doDisplay);
-    glutKeyboardFunc(handleKey);
+    glutDisplayFunc(onDisplay);
+    glutIdleFunc(onDisplay);
+    glutKeyboardFunc(onKey);
 
     glutMainLoop();
 
