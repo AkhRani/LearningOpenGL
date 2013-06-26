@@ -89,14 +89,14 @@ void setupPentagon(ShapeInfo *pInfo)
     pInfo->indices = indices;
 }
 
-void drawTrianglesAt(double x, double y, double z, double scale, ShapeInfo *info)
+void drawTrianglesAt(double x, double y, double z, double scale, ShapeInfo *pInfo)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(-x, -y, -z+CENTER_Z, -x, -y, -z, 0., 1., 0.);
     glScaled(scale, scale, 1.);
 
-    glDrawElements(GL_TRIANGLES, info->count, GL_UNSIGNED_SHORT, info->indices);
+    glDrawElements(GL_TRIANGLES, pInfo->count, GL_UNSIGNED_SHORT, pInfo->indices);
 }
 
 int main(int argc, char *argv[])

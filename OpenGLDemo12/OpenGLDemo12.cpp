@@ -40,6 +40,9 @@
  *
  * Demo 11:
  * Added glew for VSync, re-added animation
+ *
+ * Demo 12:
+ * Switched to VBOs
  */
 #include <windows.h>
 #include <WinGDI.h>
@@ -50,6 +53,7 @@
 #include <glut.h>
 
 #include <stdio.h>
+#include <stddef.h>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -58,8 +62,8 @@
 #define DEPTH_OF_FIELD  5.0
 
 typedef struct {
-    const GLushort *indices;
     GLsizei count;
+    GLuint vboId;
 } ShapeInfo;
 
 void setupPyramid(ShapeInfo *pInfo)
@@ -68,6 +72,8 @@ void setupPyramid(ShapeInfo *pInfo)
         GLfloat x, y, z;
         GLubyte red, green, blue;
     } VertexInfo;
+
+    GLuint vboId(0);
 
     static const VertexInfo pyramidData[] = {
         // Bottom
@@ -88,14 +94,18 @@ void setupPyramid(ShapeInfo *pInfo)
         { 0.0f, 0.75f, 0.f, 0, 255, 0},
     };
 
-    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pyramidData[0].x);
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pyramidData[0].red);
+    glGenBuffers(1, &vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidData), pyramidData, GL_STATIC_DRAW);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
 
     pInfo->count = 12;
-    pInfo->indices = NULL;
+    pInfo->vboId = vboId;
 }
 
-void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *info)
+void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *pInfo)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -103,13 +113,11 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
     glRotated(rotyDegrees, 0., 1., 0.);
     glScaled(scale, scale, scale);
 
-    if (info->indices) {
-        glDrawElements(GL_TRIANGLES, info->count, GL_UNSIGNED_SHORT, info->indices);
-    }
-    else {
-        glDrawArrays(GL_TRIANGLES, 0, info->count);
-    }
+    glBindBuffer(GL_ARRAY_BUFFER, pInfo->vboId);
+    glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
 }
+
+ShapeInfo g_Pyramid;
 
 void onDisplay()
 {
@@ -120,11 +128,9 @@ void onDisplay()
     double depth = -i/200.;
     double angle = i/30.;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ShapeInfo info;
-    setupPyramid(&info);
-    drawTrianglesAt(cos(angle), sin(angle), depth, i*3., 2., &info);
-    drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), depth, i, 1.5, &info);
-    drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), depth, i*10., 1.2, &info);
+    drawTrianglesAt(cos(angle), sin(angle), depth, i*3., 2., &g_Pyramid);
+    drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), depth, i, 1.5, &g_Pyramid);
+    drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), depth, i*10., 1.2, &g_Pyramid);
     glutSwapBuffers();
 }
 
@@ -150,13 +156,12 @@ int main(int argc, char *argv[])
 
     glMatrixMode(GL_PROJECTION);
     GLdouble ratio = 640.0f / 480.0f;
-    // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
     glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
+    setupPyramid(&g_Pyramid);
     glutDisplayFunc(onDisplay);
     glutIdleFunc(onDisplay);
     glutKeyboardFunc(onKey);
-
     glutMainLoop();
 
     return 0;

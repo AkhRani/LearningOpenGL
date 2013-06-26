@@ -88,7 +88,7 @@ void setupPyramid(ShapeInfo *pInfo)
     pInfo->indices = NULL;
 }
 
-void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *info)
+void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *pInfo)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -96,11 +96,11 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
     glRotated(rotyDegrees, 0., 1., 0.);
     glScaled(scale, scale, scale);
 
-    if (info->indices) {
-        glDrawElements(GL_TRIANGLES, info->count, GL_UNSIGNED_SHORT, info->indices);
+    if (pInfo->indices) {
+        glDrawElements(GL_TRIANGLES, pInfo->count, GL_UNSIGNED_SHORT, pInfo->indices);
     }
     else {
-        glDrawArrays(GL_TRIANGLES, 0, info->count);
+        glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
     }
 }
 
