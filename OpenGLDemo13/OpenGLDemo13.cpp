@@ -43,6 +43,9 @@
  *
  * Demo 12:
  * Switched to VBOs
+ *
+ * Demo 13:
+ * Switched from fixed-function pipeline to shader programs.
  */
 #include <windows.h>
 #include <WinGDI.h>
@@ -66,6 +69,57 @@ typedef struct {
     GLuint vboId;
 } ShapeInfo;
 
+ShapeInfo g_Pyramid;
+
+// Must match hard-coded location in vertShaderSource
+#define V_POSITION 0
+
+// Must match hard-coded location in vertShaderSource
+#define C_POSITION 1
+
+void setupShaders()
+{
+    GLchar infoLog[4096];
+    GLsizei length;
+
+    const GLchar *vertShaderSource[] = {
+        "#version 430 core\n"
+        "layout(location = 0) in vec4 vPosition;\n"
+        "layout(location = 1) in vec3 vColor;\n"
+        "out vec3 color;\n"
+        "void main() {\n"
+        "    gl_Position = vPosition;"
+        "    color = vColor;"
+        "}\n"
+    };
+    GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertShader, 1, vertShaderSource, NULL);
+
+    const GLchar *fragShaderSource[] = {
+        "#version 430 core\n"
+        "in vec3 color;\n"
+        "out vec4 fColor;\n"
+        "void \n"
+        "main() {\n"
+        "    fColor = vec4(color, 255);\n"
+        "}\n"
+    };
+    GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragShader, 1, fragShaderSource, NULL);
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vertShader);
+    glCompileShader(vertShader);
+    glGetShaderInfoLog(vertShader, 4096, &length, infoLog);
+
+    glAttachShader(program, fragShader);
+    glCompileShader(fragShader);
+    glGetShaderInfoLog(fragShader, 4096, &length, infoLog);
+
+    glLinkProgram(program);
+    glUseProgram(program);
+}
+
 void setupPyramid(ShapeInfo *pInfo)
 {
     typedef struct {
@@ -82,8 +136,8 @@ void setupPyramid(ShapeInfo *pInfo)
         { -0.433f, 0.f, -.25f, 255, 0, 0},
         // Side 1
         { -0.433f, 0.f, -.25f, 0, 0, 255},
-        { 0.433f, 0.f, -.25f, 0, 0, 255},
-        { 0.0f, 0.75f, 0.f, 0, 0, 255},
+        { 0.433f, 0.f, -.25f, 0, 255, 255},
+        { 0.0f, 0.75f, 0.f, 255, 0, 255},
         // Side 2
         { -0.433f, 0.f, -.25f, 255, 255, 0},
         { 0.0f, 0.f, .5f, 255, 255, 0},
@@ -98,8 +152,10 @@ void setupPyramid(ShapeInfo *pInfo)
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidData), pyramidData, GL_STATIC_DRAW);
 
-    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
+    glVertexAttribPointer(V_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
+    glEnableVertexAttribArray(V_POSITION);
+    glVertexAttribPointer(C_POSITION, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
+    glEnableVertexAttribArray(C_POSITION);
 
     pInfo->count = 12;
     pInfo->vboId = vboId;
@@ -107,17 +163,16 @@ void setupPyramid(ShapeInfo *pInfo)
 
 void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *pInfo)
 {
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(-x, -y, -z+CENTER_Z, -x, -y, -z, 0., 1., 0.);
-    glRotated(rotyDegrees, 0., 1., 0.);
-    glScaled(scale, scale, scale);
+    // TODO in Demo 14:
+    // glMatrixMode(GL_MODELVIEW);
+    // glLoadIdentity();
+    // gluLookAt(-x, -y, -z+CENTER_Z, -x, -y, -z, 0., 1., 0.);
+    // glRotated(rotyDegrees, 0., 1., 0.);
+    // glScaled(scale, scale, scale);
 
-    glBindBuffer(GL_ARRAY_BUFFER, pInfo->vboId);
+    glBindVertexArray(pInfo->vboId);
     glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
 }
-
-ShapeInfo g_Pyramid;
 
 void onDisplay()
 {
@@ -146,18 +201,17 @@ int main(int argc, char *argv[])
     glutInitWindowSize(640, 480);
     glutCreateWindow(argv[0]);
 
-    // glewInit (called after glutCreateWindow) sets up wglSwapIntervalEXT pointer
     glewInit();
     wglSwapIntervalEXT(1);
 
     glEnable(GL_DEPTH_TEST);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
 
-    glMatrixMode(GL_PROJECTION);
-    GLdouble ratio = 640.0f / 480.0f;
-    glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+    // TODO in Demo 14:
+    // glMatrixMode(GL_PROJECTION);
+    // GLdouble ratio = 640.0f / 480.0f;
+    // glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
+    setupShaders();
     setupPyramid(&g_Pyramid);
     glutDisplayFunc(onDisplay);
     glutIdleFunc(onDisplay);
