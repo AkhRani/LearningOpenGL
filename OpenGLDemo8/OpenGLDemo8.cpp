@@ -1,33 +1,8 @@
 /*
- * Demo 1:
- * Started with the simplest OpenGL program I could make, using SDL.
- *
- * Demo 2:
- * Combined two triangles to make a square, added color, and used an
- * orthographic projection matrix to compensate for the window's
- * aspect ratio.
- *
- * Demo 3:
- * Applied a simple translation matrix to draw the square in different
- * locations, and moved vertex data into an array.
-*
- * Demo 4:
- * Switched from glBegin/glEnd to glDrawArrays
- *
- * Demo 5:
- * Refactored square drawing, added scaling factor to model/view matrix.
- * Added Pentagon to show combined vertex/color buffer.
- *
- * Demo 6:
- * Switched from glDrawArrays to glDrawElements
- *
- * Demo 7:
- * Added simple animation.
- *
  * Demo 8:
  * Removed square, animation now includes Z component.
- * changed projection matrix from orthoganal to frustum.
- * Added defines to clarify frustum parameters.
+ * Used glTranslate for model/view matrix.
+ * Changed projection matrix from orthoganal to frustum.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -93,7 +68,7 @@ void drawTrianglesAt(double x, double y, double z, double scale, ShapeInfo *pInf
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(-x, -y, -z+CENTER_Z, -x, -y, -z, 0., 1., 0.);
+    glTranslated(x, y, z);
     glScaled(scale, scale, 1.);
 
     glDrawElements(GL_TRIANGLES, pInfo->count, GL_UNSIGNED_SHORT, pInfo->indices);
@@ -109,17 +84,19 @@ int main(int argc, char *argv[])
         GLdouble ratio = 640.0f / 480.0f;
         // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
         glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+        GLfloat projection[16];
+        glGetFloatv(GL_PROJECTION_MATRIX, projection);
 
         for (int i = 0; i < 400; i++) {
-            double depth = 1. - i/200.;     // from +1 to -1
+            double z = -CENTER_Z + DEPTH_OF_FIELD/2 - i/200.;     // from -1 to -3
             double sinVal = sin(i/30.);
             double cosVal = cos(i/30.);
             glClear(GL_COLOR_BUFFER_BIT);
             ShapeInfo info;
             setupPentagon(&info);
-            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, depth, .5, &info);
-            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, depth, .4, &info);
-            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, depth, .3, &info);
+            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, z, .5, &info);
+            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, z, .4, &info);
+            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, z, .3, &info);
 
             SDL_GL_SwapBuffers();
         }

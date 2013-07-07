@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\Users\Kevin\Downloads\glew-1.9.0-win32\glew-1.9.0\include;E:\Users\Kevin\Downloads\glut-3.7.6-bin\glut-3.7.6-bin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Users\Kevin\Downloads\oglpg-8th-edition\include;E:\Users\Kevin\Downloads\glew-1.9.0-win32\glew-1.9.0\include;E:\Users\Kevin\Downloads\glut-3.7.6-bin\glut-3.7.6-bin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\Users\Kevin\Downloads\glew-1.9.0-win32\glew-1.9.0\include;E:\Users\Kevin\Downloads\glut-3.7.6-bin\glut-3.7.6-bin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Users\Kevin\Downloads\oglpg-8th-edition\include;E:\Users\Kevin\Downloads\glew-1.9.0-win32\glew-1.9.0\include;E:\Users\Kevin\Downloads\glut-3.7.6-bin\glut-3.7.6-bin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

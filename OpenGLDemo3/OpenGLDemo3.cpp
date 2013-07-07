@@ -1,15 +1,8 @@
 /*
- * Demo 1:
- * Started with the simplest OpenGL program I could make, using SDL.
- *
- * Demo 2:
- * Combined two triangles to make a square, added color, and used an
- * orthographic projection matrix to compensate for the window's
- * aspect ratio.
- *
  * Demo 3:
  * Applied a simple translation matrix to draw the square in different
- * locations, and moved vertex data into an array.
+ * locations, and moved vertex data into an array.  Also added depth
+ * test to show how the projection matrix changes the Z axis.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -43,12 +36,12 @@ void drawSquare()
     } VertexInfo;
 
     static const VertexInfo squareVertices[] = {
-        {-0.5f, 0.5f,255, 0, 0},
-        {0.5f, 0.5f, 0, 255, 0},
-        {0.5f, -0.5f, 0, 0, 255},
-        {.5f, -0.5f, 0, 0, 255},
-        {-0.5f, -0.5f, 255, 255, 255},
-        {-0.5f, 0.5f, 255, 0, 0}
+        {-.5f,  .5f, 255, 0,   0},
+        { .5f,  .5f, 0,   255, 0},
+        { .5f, -.5f, 0,   0,   255},
+        { .5f, -.5f, 0,   0,   255},
+        {-.5f, -.5f, 255, 255, 255},
+        {-.5f,  .5f, 255, 0,   0}
     };
 
     glBegin(GL_TRIANGLES);
@@ -59,29 +52,44 @@ void drawSquare()
     glEnd();
 }
 
-void drawSquareAt(double x, double y)
+void drawSquareAt(double x, double y, double z)
 {
+    // Note: the array declaration does not follow the normal matrix notation.
+    // The first column contains the values used to compute the x coordinate.
     GLdouble translationMatrix[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        x,    y,    0.0f, 1.0f
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        x,   y,   z,   1.0
     };
     glLoadMatrixd(translationMatrix);
     drawSquare();
 }
 
+#define USE_PROJECTION_MATRIX 1
+
 int main(int argc, char *argv[])
 {
     if (initializeSdl()) {
+        // Without the depth test, the most recently drawn primitive
+        // is always on top of previously drawn primitives.
+        glEnable(GL_DEPTH_TEST);
+
+#if USE_PROJECTION_MATRIX
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
         glOrtho(-ratio, ratio, -1, 1, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
+#endif
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        drawSquareAt(0, 0);
-        drawSquareAt(0.5, 0.5);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // With no projection matrix, these are window coordinates,
+        // which are left-handed.  When using a projection matrix,
+        // these are right-handed coordinates, which will be converted
+        // to left-handed coordinates by the projection matrix, reversing
+        // the direction of the Z axis.
+        glMatrixMode(GL_MODELVIEW);
+        drawSquareAt(0, 0, 0);
+        drawSquareAt(0.5, 0.5, 0.5);
 
         SDL_GL_SwapBuffers();
         SDL_Delay(3000);
