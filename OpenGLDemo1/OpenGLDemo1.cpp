@@ -2,10 +2,7 @@
  * Demo 1:
  * Started with the simplest OpenGL program I could make, using SDL.
  *
- * Prerequisites:
- *   Download SDL-devel-1.2.15-VC.zip from http://www.libsdl.org/download-1.2.php
- *   Set the environment variable SDL_DIR to the un-zipped SDL directory, e.g.
- *      SDL_DIR=C:\SDL-devel-1.2.15-VC\SCL-1.2.15
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

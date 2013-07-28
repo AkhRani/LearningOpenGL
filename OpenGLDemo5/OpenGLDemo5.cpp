@@ -2,6 +2,8 @@
  * Demo 5:
  * Refactored square drawing, added scaling factor to model/view matrix.
  * Added Pentagon to show combined vertex/color buffer.
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

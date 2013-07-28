@@ -2,8 +2,10 @@
  * Demo 10:
  * Switched from SDL to glut.
  * See http://openglbook.com/setting-up-opengl-glew-and-freeglut-in-visual-c/
+ *
+ * See README.txt for prerequisites.
  */
-#include <glut.h>
+#include <GL/glut.h>
 #include <GL/GL.h>
 
 #include <stdio.h>
@@ -18,6 +20,7 @@ typedef struct {
     const GLushort *indices;
     GLsizei count;
 } ShapeInfo;
+
 
 
 void setupPyramid(ShapeInfo *pInfo)

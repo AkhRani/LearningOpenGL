@@ -1,8 +1,8 @@
 /*
  * Demo 14:
  * Added model/view matrix to vertex shader.
- * Using vmath.h from http://www.opengl-redbook.com/.
- * Make sure oglpg-8th-edition/include is in your include path.
+ *
+ * See README.txt for prerequisites.
  */
 #include <windows.h>
 #include <WinGDI.h>
@@ -10,7 +10,7 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/GL.h>
-#include <glut.h>
+#include <GL/glut.h>
 
 #include <stdio.h>
 #include <stddef.h>
@@ -27,6 +27,8 @@ using vmath::mat4;
 
 #define CENTER_Z        6.0f     // Distance from camera
 #define DEPTH_OF_FIELD  5.0f
+
+const float PIF();
 
 typedef struct {
     GLsizei count;
@@ -158,12 +160,16 @@ void onDisplay()
     if (i < 400) {
         i++;
     }
-    double z = -i/200.;
-    double angle = i/30.;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawTrianglesAt(cos(angle), sin(angle), z, i*3., 2., &g_Pyramid);
-    drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), z, i, 1.5, &g_Pyramid);
-    drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), z, i*10., 1.2, &g_Pyramid);
+    float z = -i/200.f;
+    float angle = i/30.f;
+    drawTrianglesAt(cosf(angle), sinf(angle), z, i*3.f, 2.f, &g_Pyramid);
+
+    float angle2 = angle + 2 * float(M_PI) / 3.f;
+    drawTrianglesAt(cosf(angle2), sinf(angle2), z, i*1.f, 1.5f, &g_Pyramid);
+
+    float angle3 = angle + 4 * float(M_PI) / 3.f;
+    drawTrianglesAt(cosf(angle3), sinf(angle3), z, i*10.f, 1.2f, &g_Pyramid);
     glutSwapBuffers();
 }
 
@@ -184,7 +190,7 @@ int main(int argc, char *argv[])
 
     glEnable(GL_DEPTH_TEST);
 
-    GLdouble ratio = 640.0f / 480.0f;
+    GLfloat ratio = 640.0f / 480.0f;
     // glMatrixMode(GL_PROJECTION);
     // glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
     setupFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);

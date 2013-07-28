@@ -3,6 +3,8 @@
  * Removed square, animation now includes Z component.
  * Used glTranslate for model/view matrix.
  * Changed projection matrix from orthoganal to frustum.
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

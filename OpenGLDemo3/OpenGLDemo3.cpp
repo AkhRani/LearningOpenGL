@@ -3,6 +3,8 @@
  * Applied a simple translation matrix to draw the square in different
  * locations, and moved vertex data into an array.  Also added depth
  * test to show how the projection matrix changes the Z axis.
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

@@ -1,6 +1,8 @@
 /*
  * Demo 7:
  * Added simple animation.
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

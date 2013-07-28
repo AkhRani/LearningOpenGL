@@ -3,6 +3,8 @@
  * Combined two triangles to make a square, added color, and used an
  * orthographic projection matrix to compensate for the window's
  * aspect ratio.
+ *
+ * See README.txt for prerequisites.
  */
 
 #include "SDL.h"

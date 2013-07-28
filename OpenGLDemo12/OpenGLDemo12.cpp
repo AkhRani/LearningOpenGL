@@ -1,6 +1,8 @@
 /*
  * Demo 12:
  * Switched to VBOs
+ *
+ * See README.txt for prerequisites.
  */
 #include <windows.h>
 #include <WinGDI.h>
@@ -8,7 +10,7 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/GL.h>
-#include <glut.h>
+#include <GL/glut.h>
 
 #include <stdio.h>
 #include <stddef.h>

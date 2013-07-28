@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <FREEGLUT_DIR>E:\Users\Kevin\Downloads\freeglut-2.8.1</FREEGLUT_DIR>
+    <GLEW_DIR>E:\Users\Kevin\Downloads\glew-1.9.0-win32\glew-1.9.0</GLEW_DIR>
+    <OGLPG_DIR>E:\Users\Kevin\Downloads\oglpg-8th-edition</OGLPG_DIR>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>xcopy /d "$(FREEGLUT_DIR)\lib\x86\freeglut.dll" "$(TargetDir)"
+xcopy /d "$(GLEW_DIR)\bin\glew32.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="FREEGLUT_DIR">
+      <Value>$(FREEGLUT_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="GLEW_DIR">
+      <Value>$(GLEW_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="OGLPG_DIR">
+      <Value>$(OGLPG_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

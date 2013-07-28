@@ -1,6 +1,11 @@
+Prerequisites for Demo 1 - Demo 9:
+ *   Download SDL-devel-1.2.15-VC.zip from http://www.libsdl.org/download-1.2.php
+ *   If View->Property Manager is not available, enable it using Tools -> Settings -> Expert settings.
+ *   Use the Property Manager (View->Property Manager) to edit the sdl_project property page.
+       Under User Macros, set SDL_DIR to the un-zipped SDL directory, e.g. C:\SDL-devel-1.2.15-VC\SCL-1.2.15
+
 Demo 1:
 * Started with the simplest OpenGL program I could make, using SDL.
-
 
 Demo 2:
 * Combined two triangles to make a square, added color, and used an
@@ -36,6 +41,16 @@ Demo 9:
 * DrawTrianglesAt now calls glDrawArrays or glDrawElements, as needed.
 * Added depth testing.
 
+
+Prerequisites for Demos 10-14:
+ * Download freeglut from http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-MSVC.zip
+ * Download glew from https://sourceforge.net/projects/glew/files/glew/1.9.0/glew-1.9.0-win32.zip/download
+ * Unzip freeglut and glew.
+ * Edit the glut_project property pages, and go to User Macros.
+    + Set FREEGLUT_DIR to the freeglut directory, e.g. C:\freeglut-2.8.1 
+    + Set GLEW_DIR to the glew directory, e.g. C:\glew-1.9.0-win32\glew-1.9.0
+
+
 Demo 10:
 * Switched from SDL to glut.
 * See http://openglbook.com/setting-up-opengl-glew-and-freeglut-in-visual-c/
@@ -48,6 +63,15 @@ Demo 12:
 
 Demo 13:
 * Switched from fixed-function pipeline to shader programs.
+
+
+Additional prerequisites for Demo 14+:
+ * Download http://www.opengl-redbook.com/Code/oglpg-8th-edition.zip
+ * Make sure oglpg-8th-edition/include is in your include path.
+ * Edit the glut_project property page.
+     Under User Macros, set OGLPG_DIR to the un-zipped directory,
+     e.g. C:\oglpg-8th-edition
+
 
 Demo 14:
 * Added model/view matrix to vertex shader.

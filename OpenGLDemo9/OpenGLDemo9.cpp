@@ -4,6 +4,8 @@
  * Added rotyDegrees to drawTrianglesAt.
  * DrawTrianglesAt now calls glDrawArrays or glDrawElements, as needed.
  * Added depth testing.
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

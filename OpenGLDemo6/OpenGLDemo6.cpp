@@ -1,6 +1,8 @@
 /*
  * Demo 6:
  * Switched from glDrawArrays to glDrawElements
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"

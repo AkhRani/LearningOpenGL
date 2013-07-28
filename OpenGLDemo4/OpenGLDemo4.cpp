@@ -1,6 +1,8 @@
 /*
  * Demo 4:
  * Switched from glBegin/glEnd to glDrawArrays
+ *
+ * See README.txt for prerequisites.
  */
 #include "SDL.h"
 #include "SDL_opengl.h"
