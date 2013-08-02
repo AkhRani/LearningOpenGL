@@ -34,14 +34,17 @@ typedef struct {
 } ShapeInfo;
 
 ShapeInfo g_Pyramid;
-GLint g_MatrixUniform;
+GLint g_MatrixUniform, g_SamplerUniform;
 mat4 g_ProjectionMatrix(mat4::identity());
 
-// Must match hard-coded location in vertShaderSource
+// Must match hard-coded vPosition location in vertShaderSource
 #define V_POSITION 0
 
 // Must match hard-coded location in vertShaderSource
 #define C_POSITION 1
+
+// Must match hard-coded vTexture location in vertShaderSource
+#define T_POSITION 2
 
 void setupShaders()
 {
@@ -53,10 +56,13 @@ void setupShaders()
         "uniform mat4 ModelViewProject;\n"
         "layout(location = 0) in vec4 vPosition;\n"
         "layout(location = 1) in vec3 vColor;\n"
+        "layout(location = 2) in vec2 vTexture;\n"
         "out vec3 color;\n"
+        "out vec2 vs_tex_coord;\n"
         "void main() {\n"
-        "    gl_Position = ModelViewProject * vPosition;"
-        "    color = vColor;"
+        "    gl_Position = ModelViewProject * vPosition;\n"
+        "    vs_tex_coord = vTexture;\n"
+        "    color = vColor;\n"
         "}\n"
     };
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -64,13 +70,20 @@ void setupShaders()
 
     const GLchar *fragShaderSource[] = {
         "#version 430 core\n"
+        "uniform sampler2D tex;\n"
         "in vec3 color;\n"
+        "in vec2 vs_tex_coord;\n"
         "out vec4 fColor;\n"
         "void \n"
         "main() {\n"
-        "    fColor = vec4(color, 255);\n"
+        "    vec4 texColor = texture(tex, vs_tex_coord);\n"
+        "    fColor = vec4(color, 0) * (1 - texColor.a) + texColor;\n"
         "}\n"
     };
+    // Try one of these lines in the fragment shader for a different effect
+//        "    fColor = vec4(vs_tex_coord, 0., 255);\n"
+//        "    fColor = vec4(color, 255) + texColor;\n"
+//        "    fColor = texColor;\n"
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, fragShaderSource, NULL);
 
@@ -86,6 +99,61 @@ void setupShaders()
     glLinkProgram(program);
     glUseProgram(program);
     g_MatrixUniform = glGetUniformLocation(program, "ModelViewProject");
+    g_SamplerUniform = glGetUniformLocation(program, "tex");
+}
+
+
+// Convert a simple bitmap (one bit per pixel) into an RGBA bitmap (four bytes per pixel)
+GLubyte* BuildMonochromeBitmap(const GLubyte* bits, int width, int height, GLubyte red, GLubyte green, GLubyte blue)
+{
+    GLubyte* retval = (GLubyte *)malloc(width * height * 4);
+    if (retval) {
+        GLubyte* ptr = retval;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width/8; x++) {
+                GLubyte next8 = *bits++;
+                for (int mask = 128; mask > 0; mask >>= 1) {
+                    if (next8 & mask) {
+                        *ptr++ = red;
+                        *ptr++ = green;
+                        *ptr++ = blue;
+                        *ptr++ = 255;
+                    }
+                    else {
+                        *ptr++ = 0;
+                        *ptr++ = 0;
+                        *ptr++ = 0;
+                        *ptr++ = 0;
+                    }
+                }
+            }
+        }
+    }
+    return retval;
+}
+
+#define BITMAP_WIDTH 8
+#define BITMAP_HEIGHT 8
+
+void setupTextures()
+{
+    // This bitmap forms an X
+    GLubyte bits[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
+    GLubyte* data = BuildMonochromeBitmap(bits, BITMAP_WIDTH, BITMAP_HEIGHT, 255, 0, 0);
+    if (data) {
+        GLuint retval;
+        glGenTextures(1, &retval);
+        if (retval) {
+            glBindTexture(GL_TEXTURE_2D, retval);
+            glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, BITMAP_WIDTH, BITMAP_HEIGHT);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, BITMAP_WIDTH, BITMAP_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        }
+        else {
+            glDeleteTextures(1, &retval);
+            retval = 0;
+        }
+        free(data);
+    }
 }
 
 void setupPyramid(ShapeInfo *pInfo)
@@ -93,27 +161,28 @@ void setupPyramid(ShapeInfo *pInfo)
     typedef struct {
         GLfloat x, y, z;
         GLubyte red, green, blue;
+        GLfloat texU, texV;
     } VertexInfo;
 
     GLuint vboId(0);
 
     static const VertexInfo pyramidData[] = {
         // Bottom
-        { 0.0f, 0.f, .5f, 255, 0, 0},
-        { 0.433f, 0.f, -.25f, 255, 0, 0},
-        { -0.433f, 0.f, -.25f, 255, 0, 0},
+        { 0.0f, 0.f, .5f, 255, 0, 0, 0.f, 0.f},
+        { 0.433f, 0.f, -.25f, 255, 0, 0, 0.f, 1.f},
+        { -0.433f, 0.f, -.25f, 255, 0, 0, 1.f, 1.f},
         // Side 1
-        { -0.433f, 0.f, -.25f, 0, 0, 255},
-        { 0.433f, 0.f, -.25f, 0, 255, 255},
-        { 0.0f, 0.75f, 0.f, 255, 0, 255},
+        { -0.433f, 0.f, -.25f, 0, 0, 255, 0.f, 0.f},
+        { 0.433f, 0.f, -.25f, 0, 255, 255, 0.f, 1.f},
+        { 0.0f, 0.75f, 0.f, 255, 0, 255, 1.f, 1.f},
         // Side 2
-        { -0.433f, 0.f, -.25f, 255, 255, 0},
-        { 0.0f, 0.f, .5f, 255, 255, 0},
-        { 0.0f, 0.75f, 0.f, 255, 255, 0},
+        { -0.433f, 0.f, -.25f, 255, 255, 0, 0.f, 0.f},
+        { 0.0f, 0.f, .5f, 255, 255, 0, 0.f, 1.f},
+        { 0.0f, 0.75f, 0.f, 255, 255, 0, 1.f, 1.f},
         // Side 3
-        { 0.0f, 0.f, .5f, 0, 255, 0},
-        { 0.433f, 0.f, -.25f, 0, 255, 0},
-        { 0.0f, 0.75f, 0.f, 0, 255, 0},
+        { 0.0f, 0.f, .5f, 0, 255, 0, 0.f, 0.f},
+        { 0.433f, 0.f, -.25f, 0, 255, 0, 0.f, 1.f},
+        { 0.0f, 0.75f, 0.f, 0, 255, 0, 1.f, 1.f},
     };
 
     glGenBuffers(1, &vboId);
@@ -124,6 +193,8 @@ void setupPyramid(ShapeInfo *pInfo)
     glEnableVertexAttribArray(V_POSITION);
     glVertexAttribPointer(C_POSITION, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
     glEnableVertexAttribArray(C_POSITION);
+    glVertexAttribPointer(T_POSITION, 2, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, texU));
+    glEnableVertexAttribArray(T_POSITION);
 
     pInfo->count = 12;
     pInfo->vboId = vboId;
@@ -136,19 +207,13 @@ void setupFrustum(float left, float right, float bottom, float top, float near, 
 
 void drawTrianglesAt(float x, float y, float z, float rotyDegrees, float scale, ShapeInfo *pInfo)
 {
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-    // glTranslated(x, y, z - CENTER_Z);
     mat4 modelViewMatrix(vmath::translate(x, y, z - CENTER_Z));
-
-    // glRotated(rotyDegrees, 0., 1., 0.);
     modelViewMatrix *= vmath::rotate(rotyDegrees, 0.f, 1.f, 0.f);
-
-    // glScaled(scale, scale, scale);
     modelViewMatrix *= vmath::scale(scale, scale, scale);
 
     glUniformMatrix4fv(g_MatrixUniform, 1, GL_FALSE, g_ProjectionMatrix * modelViewMatrix );
     glBindVertexArray(pInfo->vboId);
+    glActiveTexture(GL_TEXTURE0);
     glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
 }
 
@@ -184,17 +249,16 @@ int main(int argc, char *argv[])
     glutCreateWindow(argv[0]);
 
     glewInit();
-    wglSwapIntervalEXT(1);
+    wglSwapIntervalEXT(1);	// vsync
 
     glEnable(GL_DEPTH_TEST);
 
     GLfloat ratio = 640.0f / 480.0f;
-    // glMatrixMode(GL_PROJECTION);
-    // glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
     setupFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
     setupShaders();
     setupPyramid(&g_Pyramid);
+    setupTextures();
     glutDisplayFunc(onDisplay);
     glutIdleFunc(onDisplay);
     glutKeyboardFunc(onKey);
