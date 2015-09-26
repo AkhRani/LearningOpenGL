@@ -61,8 +61,11 @@ Demo 11:
 Demo 12:
 * Switched to VBOs
 
-Demo 13:
+Demo 12.5:
 * Switched from fixed-function pipeline to shader programs.
+
+Demo 13:
+* Switched from built-in attributes to user-defined attributes.
 
 
 Additional prerequisites for Demo 14+:

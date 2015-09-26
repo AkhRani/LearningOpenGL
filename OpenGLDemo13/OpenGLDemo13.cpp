@@ -40,25 +40,22 @@ void setupShaders()
     GLsizei length;
 
     const GLchar *vertShaderSource[] = {
-        "#version 430 core\n"
-        "layout(location = 0) in vec4 vPosition;\n"
-        "layout(location = 1) in vec3 vColor;\n"
-        "out vec3 color;\n"
+        "#version 120\n"
+        "varying vec4 color;\n"
         "void main() {\n"
-        "    gl_Position = vPosition;"
-        "    color = vColor;"
+        "    gl_Position = gl_Vertex;"
+        "    color = gl_Color;"
         "}\n"
     };
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertShader, 1, vertShaderSource, NULL);
 
     const GLchar *fragShaderSource[] = {
-        "#version 430 core\n"
-        "in vec3 color;\n"
-        "out vec4 fColor;\n"
+        "#version 120\n"
+        "varying vec4 color;\n"
         "void \n"
         "main() {\n"
-        "    fColor = vec4(color, 255);\n"
+        "    gl_FragColor = color;\n"
         "}\n"
     };
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -109,10 +106,15 @@ void setupPyramid(ShapeInfo *pInfo)
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidData), pyramidData, GL_STATIC_DRAW);
 
+#if 1
+    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
+#else
     glVertexAttribPointer(V_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
     glEnableVertexAttribArray(V_POSITION);
     glVertexAttribPointer(C_POSITION, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
     glEnableVertexAttribArray(C_POSITION);
+#endif
 
     pInfo->count = 12;
     pInfo->vboId = vboId;

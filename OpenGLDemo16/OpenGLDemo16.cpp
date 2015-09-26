@@ -1,6 +1,6 @@
 /*
- * Demo 15:
- * Added textures
+ * Demo 16:
+ * Setting up custom sampler.
  *
  * See README.txt for prerequisites.
  */
@@ -36,6 +36,10 @@ typedef struct {
 ShapeInfo g_Pyramid;
 GLint g_MatrixUniform, g_SamplerUniform;
 mat4 g_ProjectionMatrix(mat4::identity());
+
+#define USE_BLOCKY_SAMPLER
+
+#define BLOCKY_SAMPLER 1
 
 // Must match hard-coded vPosition location in vertShaderSource
 #define V_POSITION 0
@@ -132,28 +136,73 @@ GLubyte* BuildMonochromeBitmap(const GLubyte* bits, int width, int height, GLuby
     return retval;
 }
 
-#define BITMAP_WIDTH 8
-#define BITMAP_HEIGHT 8
+#define BITMAP_WIDTH 16
+#define BITMAP_HEIGHT 16
+#define BIT_BYTES ((BITMAP_WIDTH / 8) * BITMAP_HEIGHT)
 
 void setupTextures()
 {
-    // This bitmap forms an X
-    GLubyte bits[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
+    // smiley face
+    GLubyte bits[BIT_BYTES] = {
+        0x00, 0x00,
+        0x00, 0x00,
+        0x07, 0xE0,
+        0x08, 0x10,
+        0x10, 0x08,
+        0x20, 0x04,
+        0x44, 0x22,
+        0x40, 0x02,
+        0x40, 0x02,
+        0x40, 0x02,
+        0x42, 0x42,
+        0x23, 0xc4,
+        0x10, 0x08,
+        0x0c, 0x30,
+        0x03, 0xc0,
+        0x00, 0x00,
+    };
+
     GLubyte* data = BuildMonochromeBitmap(bits, BITMAP_WIDTH, BITMAP_HEIGHT, 255, 0, 0);
+    GLuint texture = 0;
     if (data) {
-        GLuint retval;
-        glGenTextures(1, &retval);
-        if (retval) {
-            glBindTexture(GL_TEXTURE_2D, retval);
+        glGenTextures(1, &texture);
+        if (texture) {
+            glBindTexture(GL_TEXTURE_2D, texture);
+#ifdef USE_BLOCKY_SAMPLER
+            // Only need one mipmap level for nearest sampling
+            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, BITMAP_WIDTH, BITMAP_HEIGHT);
+#else
+            // Need complete mipmaps for default (linear) sampling
             glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, BITMAP_WIDTH, BITMAP_HEIGHT);
+#endif
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, BITMAP_WIDTH, BITMAP_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, data);
+#ifndef USE_BLOCKY_SAMPLER
+            glGenerateMipmap(GL_TEXTURE_2D);
+#endif
         }
         else {
-            glDeleteTextures(1, &retval);
-            retval = 0;
+            glDeleteTextures(1, &texture);
+            texture = 0;
         }
         free(data);
     }
+
+#ifdef USE_BLOCKY_SAMPLER
+    if (texture) {
+        GLuint sampler;
+        glGenSamplers(1, &sampler);
+        if (sampler) {
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glBindSampler(BLOCKY_SAMPLER, sampler);
+            glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glUniform1i(g_SamplerUniform, BLOCKY_SAMPLER);
+        }
+    }
+#endif
 }
 
 void setupPyramid(ShapeInfo *pInfo)
@@ -173,16 +222,16 @@ void setupPyramid(ShapeInfo *pInfo)
         { -0.433f, 0.f, -.25f, 255, 0, 0, 1.f, 1.f},
         // Side 1
         { -0.433f, 0.f, -.25f, 0, 0, 255, 0.f, 0.f},
-        { 0.433f, 0.f, -.25f, 0, 255, 255, 0.f, 1.f},
+        { 0.433f, 0.f, -.25f, 0, 255, 255, 1.f, 0.f},
         { 0.0f, 0.75f, 0.f, 255, 0, 255, 1.f, 1.f},
         // Side 2
         { -0.433f, 0.f, -.25f, 255, 255, 0, 0.f, 0.f},
         { 0.0f, 0.f, .5f, 255, 255, 0, 0.f, 1.f},
         { 0.0f, 0.75f, 0.f, 255, 255, 0, 1.f, 1.f},
         // Side 3
-        { 0.0f, 0.f, .5f, 0, 255, 0, 0.f, 0.f},
-        { 0.433f, 0.f, -.25f, 0, 255, 0, 0.f, 1.f},
-        { 0.0f, 0.75f, 0.f, 0, 255, 0, 1.f, 1.f},
+        { 0.0f, 0.f, .5f, 0, 255, 0, 4.f, 4.f},
+        { 0.0f, 0.75f, 0.f, 0, 255, 0, 2.f, 0.f},
+        { 0.433f, 0.f, -.25f, 0, 255, 0, 0.f, 4.f},
     };
 
     glGenBuffers(1, &vboId);
@@ -213,7 +262,6 @@ void drawTrianglesAt(float x, float y, float z, float rotyDegrees, float scale, 
 
     glUniformMatrix4fv(g_MatrixUniform, 1, GL_FALSE, g_ProjectionMatrix * modelViewMatrix );
     glBindVertexArray(pInfo->vboId);
-    glActiveTexture(GL_TEXTURE0);
     glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
 }
 
@@ -228,11 +276,11 @@ void onDisplay()
     float angle = i/30.f;
     drawTrianglesAt(cosf(angle), sinf(angle), z, i*3.f, 2.f, &g_Pyramid);
 
-    float angle2 = angle + 2 * float(M_PI) / 3.f;
-    drawTrianglesAt(cosf(angle2), sinf(angle2), z, i*1.f, 1.5f, &g_Pyramid);
+//    float angle2 = angle + 2 * float(M_PI) / 3.f;
+//    drawTrianglesAt(cosf(angle2), sinf(angle2), z, i*1.f, 1.5f, &g_Pyramid);
 
-    float angle3 = angle + 4 * float(M_PI) / 3.f;
-    drawTrianglesAt(cosf(angle3), sinf(angle3), z, i*10.f, 1.2f, &g_Pyramid);
+//    float angle3 = angle + 4 * float(M_PI) / 3.f;
+//    drawTrianglesAt(cosf(angle3), sinf(angle3), z, i*10.f, 1.2f, &g_Pyramid);
     glutSwapBuffers();
 }
 
