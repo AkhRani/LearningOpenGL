@@ -2,6 +2,8 @@
  * Demo 14:
  * Added model/view matrix to vertex shader.
  *
+ * gl_ModelViewMatrix and associates were deprecated in OpenGL 3 / GLSL 1.3.
+ *
  * See README.txt for prerequisites.
  */
 #include <windows.h>
@@ -36,14 +38,8 @@ typedef struct {
 } ShapeInfo;
 
 ShapeInfo g_Pyramid;
-GLint g_MatrixUniform;
+GLuint g_progid;
 mat4 g_ProjectionMatrix(mat4::identity());
-
-// Must match hard-coded location in vertShaderSource
-#define V_POSITION 0
-
-// Must match hard-coded location in vertShaderSource
-#define C_POSITION 1
 
 void setupShaders()
 {
@@ -51,11 +47,11 @@ void setupShaders()
     GLsizei length;
 
     const GLchar *vertShaderSource[] = {
-        "#version 430 core\n"
+        "#version 120\n"
         "uniform mat4 ModelViewProject;\n"
-        "layout(location = 0) in vec4 vPosition;\n"
-        "layout(location = 1) in vec3 vColor;\n"
-        "out vec3 color;\n"
+        "attribute vec4 vPosition;\n"
+        "attribute vec3 vColor;\n"
+        "varying vec3 color;\n"
         "void main() {\n"
         "    gl_Position = ModelViewProject * vPosition;"
         "    color = vColor;"
@@ -63,31 +59,31 @@ void setupShaders()
     };
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertShader, 1, vertShaderSource, NULL);
+    glCompileShader(vertShader);
+    glGetShaderInfoLog(vertShader, 4096, &length, infoLog);
 
     const GLchar *fragShaderSource[] = {
-        "#version 430 core\n"
-        "in vec3 color;\n"
+        "#version 120\n"
+        "varying vec3 color;\n"
+        "out vec4 fAnotherColor;\n"
         "out vec4 fColor;\n"
         "void \n"
         "main() {\n"
+        "    fAnotherColor = vec4(0, 255, 0, 255);\n"
         "    fColor = vec4(color, 255);\n"
         "}\n"
     };
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, fragShaderSource, NULL);
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertShader);
-    glCompileShader(vertShader);
-    glGetShaderInfoLog(vertShader, 4096, &length, infoLog);
-
-    glAttachShader(program, fragShader);
     glCompileShader(fragShader);
     glGetShaderInfoLog(fragShader, 4096, &length, infoLog);
 
-    glLinkProgram(program);
-    glUseProgram(program);
-    g_MatrixUniform = glGetUniformLocation(program, "ModelViewProject");
+    g_progid = glCreateProgram();
+    glAttachShader(g_progid, vertShader);
+    glAttachShader(g_progid, fragShader);
+    glBindFragDataLocation(g_progid, 0, "fColor");
+    glLinkProgram(g_progid);
+    glUseProgram(g_progid);
 }
 
 void setupPyramid(ShapeInfo *pInfo)
@@ -122,10 +118,13 @@ void setupPyramid(ShapeInfo *pInfo)
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidData), pyramidData, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(V_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
-    glEnableVertexAttribArray(V_POSITION);
-    glVertexAttribPointer(C_POSITION, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
-    glEnableVertexAttribArray(C_POSITION);
+    GLuint vpos = glGetAttribLocation(g_progid, "vPosition");
+    glVertexAttribPointer(vpos, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
+    glEnableVertexAttribArray(vpos);
+
+    GLuint color = glGetAttribLocation(g_progid, "vColor");
+    glVertexAttribPointer(color, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
+    glEnableVertexAttribArray(color);
 
     pInfo->count = 12;
     pInfo->vboId = vboId;
@@ -149,7 +148,8 @@ void drawTrianglesAt(float x, float y, float z, float rotyDegrees, float scale, 
     // glScaled(scale, scale, scale);
     modelViewMatrix *= vmath::scale(scale, scale, scale);
 
-    glUniformMatrix4fv(g_MatrixUniform, 1, GL_FALSE, g_ProjectionMatrix * modelViewMatrix );
+    GLint mvp = glGetUniformLocation(g_progid, "ModelViewProject");
+    glUniformMatrix4fv(mvp, 1, GL_FALSE, g_ProjectionMatrix * modelViewMatrix);
     glBindVertexArray(pInfo->vboId);
     glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
 }

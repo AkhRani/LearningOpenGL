@@ -31,50 +31,56 @@ typedef struct {
 // These are deprecated in later versions of the GLSL.
 void setupShaders()
 {
-  GLchar infoLog[4096];
+    GLchar infoLog[4096];
 
-  // gl_Vertex and gl_Color are Built-in attributes, set by glVertex, glVertexPointer, etc.
-  const GLchar *vertShaderSource[] = {
-    "#version 120\n"
-    "void main() {\n"
-    "    gl_Position = gl_Vertex;"    // Every version 1.2 vertex shader must write to gl_Position
-    "    gl_FrontColor = gl_Color;"   // gl_FrontColor is a built-in varying, see below.
-    "}\n"
-  };
-  GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertShader, 1, vertShaderSource, NULL);
-  glCompileShader(vertShader);
-  glGetShaderInfoLog(vertShader, 4096, NULL, infoLog);
+    // gl_Vertex and gl_Color are built-in "attribute" values,
+    // gl_Vertex is set by glVertex, glVertexPointer, etc.
+    // gl_Color is set by glColor, glColorPointer, etc.
+    // gl_ModelViewProjectionMatrix is a built-in "uniform", set by glMatrixMode, etc.
+    const GLchar *vertShaderSource[] = {
+        "#version 120\n"
+            "void main() {\n"
+            // Every version 1.2 vertex shader must write to gl_Position
+            "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+            // gl_FrontColor is a built-in varying, see below.
+            "    gl_FrontColor = gl_Color;"
+            "}\n"
+    };
+    GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertShader, 1, vertShaderSource, NULL);
+    glCompileShader(vertShader);
+    glGetShaderInfoLog(vertShader, 4096, NULL, infoLog);
 
-  // Here, gl_Color is not the same as gl_Color in the vertex shader.
-  // gl_Color is a built-in "varying" variable, which will be an interpolation
-  // between the colors set by the vertex shader for the corners of the
-  // geometry.  Depending on the orientation of the geometry, either the
-  // gl_FrontColor or gl_BackColor will be used.
-  const GLchar *fragShaderSource[] = {
-    "#version 120\n"
-    "void \n"
-    "main() {\n"
-    "    gl_FragColor = gl_Color;\n"  // Fragment shaders write to gl_FragColor (among other things)
-    "}\n"
-  };
-  GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragShader, 1, fragShaderSource, NULL);
-  glCompileShader(fragShader);
-  glGetShaderInfoLog(fragShader, 4096, NULL, infoLog);
+    // Here, gl_Color is not the same as gl_Color in the vertex shader.
+    // gl_Color is a built-in "varying" value, which will be an interpolation
+    // between the colors set by the vertex shader for the corners of the
+    // geometry.  Depending on the orientation of the geometry, either the
+    // gl_FrontColor or gl_BackColor will be used.
+    const GLchar *fragShaderSource[] = {
+        "#version 120\n"
+            "void \n"
+            "main() {\n"
+            // Fragment shaders write to gl_FragColor (among other things)
+            "    gl_FragColor = gl_Color;\n"
+            "}\n"
+    };
+    GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragShader, 1, fragShaderSource, NULL);
+    glCompileShader(fragShader);
+    glGetShaderInfoLog(fragShader, 4096, NULL, infoLog);
 
 
-  GLuint program = glCreateProgram();
+    GLuint program = glCreateProgram();
 
-  // We can attach a fragment shader without attaching a vertex shader
-  // Note that the vertex shader we have simply passes through the vertex
-  // position without using the transforming matrices, so all the lovely
-  // animation will go away if you un-comment the following line.
-  // glAttachShader(program, vertShader);
-  glAttachShader(program, fragShader);
-  glLinkProgram(program);
-  glGetProgramInfoLog(program, 4096, NULL, infoLog);
-  glUseProgram(program);
+    // We can attach a fragment shader without attaching a vertex shader.
+    // Note that the vertex shader we have should provide the same functionality
+    // as the default OpenGL vertex shader, so the behavior should be the same
+    // either with or without.
+    // glAttachShader(program, vertShader);
+    glAttachShader(program, fragShader);
+    glLinkProgram(program);
+    glGetProgramInfoLog(program, 4096, NULL, infoLog);
+    glUseProgram(program);
 }
 
 void setupPyramid(ShapeInfo *pInfo)
@@ -169,8 +175,8 @@ int main(int argc, char *argv[])
     GLdouble ratio = 640.0f / 480.0f;
     glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
-    setupPyramid(&g_Pyramid);
     setupShaders();
+    setupPyramid(&g_Pyramid);
     glutDisplayFunc(onDisplay);
     glutIdleFunc(onDisplay);
     glutKeyboardFunc(onKey);

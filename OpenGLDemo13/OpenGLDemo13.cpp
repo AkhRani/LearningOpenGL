@@ -1,6 +1,9 @@
 /*
  * Demo 13:
- * Switched from fixed-function pipeline to shader programs.
+ * Switched from built-in attributes to user-defined attributes.
+ *
+ * gl_Vector, gl_Color, etc. were deprecated in OpenGL 3 / GLSL 1.3,
+ * in favor of user-defined attributes.
  *
  * See README.txt for prerequisites.
  */
@@ -27,51 +30,45 @@ typedef struct {
 } ShapeInfo;
 
 ShapeInfo g_Pyramid;
-
-// Must match hard-coded location in vertShaderSource
-#define V_POSITION 0
-
-// Must match hard-coded location in vertShaderSource
-#define C_POSITION 1
+GLuint g_progid;    // Shader Program ID
 
 void setupShaders()
 {
     GLchar infoLog[4096];
     GLsizei length;
 
+
     const GLchar *vertShaderSource[] = {
-        "#version 120\n"
-        "varying vec4 color;\n"
-        "void main() {\n"
-        "    gl_Position = gl_Vertex;"
-        "    color = gl_Color;"
-        "}\n"
+      "#version 120\n"
+      "attribute vec4 vPosition;"
+      "attribute vec3 vColor;"
+      "void main() {\n"
+      "    gl_Position = gl_ModelViewProjectionMatrix * vPosition;"
+      "    gl_FrontColor = vec4(vColor, 1.0);"
+      "}\n"
     };
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertShader, 1, vertShaderSource, NULL);
+    glCompileShader(vertShader);
+    glGetShaderInfoLog(vertShader, 4096, &length, infoLog);
 
     const GLchar *fragShaderSource[] = {
         "#version 120\n"
-        "varying vec4 color;\n"
-        "void \n"
-        "main() {\n"
-        "    gl_FragColor = color;\n"
+        "void main() {\n"
+        "    gl_FragColor = gl_Color;\n"
         "}\n"
     };
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, fragShaderSource, NULL);
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertShader);
-    glCompileShader(vertShader);
-    glGetShaderInfoLog(vertShader, 4096, &length, infoLog);
-
-    glAttachShader(program, fragShader);
     glCompileShader(fragShader);
     glGetShaderInfoLog(fragShader, 4096, &length, infoLog);
 
-    glLinkProgram(program);
-    glUseProgram(program);
+    g_progid = glCreateProgram();
+    glAttachShader(g_progid, vertShader);
+    glAttachShader(g_progid, fragShader);
+    glLinkProgram(g_progid);
+    glGetProgramInfoLog(g_progid, 5096, &length, infoLog);
+    glUseProgram(g_progid);
 }
 
 void setupPyramid(ShapeInfo *pInfo)
@@ -106,15 +103,15 @@ void setupPyramid(ShapeInfo *pInfo)
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidData), pyramidData, GL_STATIC_DRAW);
 
-#if 1
-    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
-#else
-    glVertexAttribPointer(V_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
-    glEnableVertexAttribArray(V_POSITION);
-    glVertexAttribPointer(C_POSITION, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
-    glEnableVertexAttribArray(C_POSITION);
-#endif
+    // Instead of calling glVertexPointer and glColorPointer, we use the
+    // general purpose glVertexAttribPointer to set the offsets for our user-defined attributes.
+    GLuint vpos = glGetAttribLocation(g_progid, "vPosition");
+    glVertexAttribPointer(vpos, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
+    glEnableVertexAttribArray(vpos);
+
+    GLuint color = glGetAttribLocation(g_progid, "vColor");
+    glVertexAttribPointer(color, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, red));
+    glEnableVertexAttribArray(color);
 
     pInfo->count = 12;
     pInfo->vboId = vboId;
@@ -123,11 +120,11 @@ void setupPyramid(ShapeInfo *pInfo)
 void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *pInfo)
 {
     // TODO in Demo 14:
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-    // glTranslated(x, y, z - CENTER_Z);
-    // glRotated(rotyDegrees, 0., 1., 0.);
-    // glScaled(scale, scale, scale);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslated(x, y, z - CENTER_Z);
+    glRotated(rotyDegrees, 0., 1., 0.);
+    glScaled(scale, scale, scale);
 
     glBindVertexArray(pInfo->vboId);
     glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
@@ -165,10 +162,11 @@ int main(int argc, char *argv[])
 
     glEnable(GL_DEPTH_TEST);
 
-    // TODO in Demo 14:
-    // glMatrixMode(GL_PROJECTION);
-    // GLdouble ratio = 640.0f / 480.0f;
-    // glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+    // We no longer call glEnableClientState for GL_VERTEX_ARRAY and GL_COLOR_ARRAY
+
+    glMatrixMode(GL_PROJECTION);
+    GLdouble ratio = 640.0f / 480.0f;
+    glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
     setupShaders();
     setupPyramid(&g_Pyramid);
