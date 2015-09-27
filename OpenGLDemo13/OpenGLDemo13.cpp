@@ -119,14 +119,13 @@ void setupPyramid(ShapeInfo *pInfo)
 
 void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *pInfo)
 {
-    // TODO in Demo 14:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslated(x, y, z - CENTER_Z);
     glRotated(rotyDegrees, 0., 1., 0.);
     glScaled(scale, scale, scale);
 
-    glBindVertexArray(pInfo->vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, pInfo->vboId);
     glDrawArrays(GL_TRIANGLES, 0, pInfo->count);
 }
 
