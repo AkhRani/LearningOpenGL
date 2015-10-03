@@ -33,17 +33,22 @@ void setupShaders()
 {
     GLchar infoLog[4096];
 
-    // gl_Vertex and gl_Color are built-in "attribute" values,
+    // gl_Vertex and gl_Color are built-in "attribute" values.
+    //   each vertex has its own set of attribute values.
     // gl_Vertex is set by glVertex, glVertexPointer, etc.
     // gl_Color is set by glColor, glColorPointer, etc.
     // gl_ModelViewProjectionMatrix is a built-in "uniform", set by glMatrixMode, etc.
+    //   As a "uniform", it has the same value for every vertex.
     const GLchar *vertShaderSource[] = {
         "#version 120\n"
+            // This function will get called for each vertex
             "void main() {\n"
-            // Every version 1.2 vertex shader must write to gl_Position
-            "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
-            // gl_FrontColor is a built-in varying, see below.
-            "    gl_FrontColor = gl_Color;"
+                // Every version 1.2 vertex shader must write to gl_Position
+                // Exercise:  Try gl_ModelViewMatrix and gl_ProjectionMatrix
+                // Exercise:  Try reversing the order of multiplication
+                "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+                // gl_FrontColor is a built-in varying, see below.
+                "gl_FrontColor = gl_Color;"
             "}\n"
     };
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);

@@ -31,6 +31,8 @@ bool initializeSdl()
 
 int setupSquare()
 {
+    // This is basically the same code as last time, using
+    // glVertexPointer and glColorPointer with contiguous data.
     static const GLfloat squareCoords[] = {
         -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f,
         0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
@@ -52,6 +54,7 @@ int setupSquare()
 
 int setupPentagon()
 {
+    // If we have our nicely organized shape information
     typedef struct {
         GLfloat x, y;
         GLubyte red, green, blue;
@@ -69,6 +72,8 @@ int setupPentagon()
         { -.47f, .15f, 255, 255, 0 },
     };
 
+    // We can simply tell OpenGL where the relevant info starts, and how far
+    // it is from one tuple of values to the next.
     glVertexPointer(2, GL_FLOAT, sizeof(VertexInfo), &pentagonData[0].x);
     glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pentagonData[0].red);
 

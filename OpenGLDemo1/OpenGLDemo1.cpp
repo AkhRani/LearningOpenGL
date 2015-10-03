@@ -15,6 +15,9 @@
 
 bool InitializeSdl()
 {
+    // OpenGL does not define how to initially set up a window and create
+    // a GL context to run in.  I'm using SDL to do that here, since SDL
+    // is the simplest cross-platform thing I could find.
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return false;
@@ -35,12 +38,17 @@ int main(int argc, char *argv[])
         // Start with a blank canvas
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // This shows the simplest (and oldest, and least efficient) way to
+        // draw shapes with OpenGL.  This is how you had to do things in
+        // OpenGL version 1.0...
+
         // Hey, GL!  I'm going to draw triangles!
         // Exercise:  Try GL_POINTS, GL_LINES, GL_QUADS, GL_TRIANGLE_STRIP
+        // (OpenGL calls these shapes "primitives", by the way)
         glBegin(GL_TRIANGLES);
 
         // Each vertex is a corner of a triangle.
-        // The first argument is x (horizontal), and the second is y (vertical)
+        // The first argument is x (horizontal), and the second is y (vertical).
         // The default coordinate space of OpenGL is [-1, 1] in x, y and z.
         glVertex2f(0.0f, 1.0f);
         glVertex2f(1.0f, -1.0f);

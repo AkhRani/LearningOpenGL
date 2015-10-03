@@ -24,6 +24,12 @@
 #define NEAR_Z (-CENTER_Z + DEPTH_OF_FIELD/2)
 
 typedef struct {
+  GLfloat x, y, z;
+  GLubyte red, green, blue;
+} VertexInfo;
+
+typedef struct {
+    const VertexInfo *vertexInfo;
     const GLushort *indices;
     GLsizei count;
 } ShapeInfo;
@@ -48,11 +54,9 @@ bool initializeSdl()
 
 void setupPyramid(ShapeInfo *pInfo)
 {
-    typedef struct {
-        GLfloat x, y, z;
-        GLubyte red, green, blue;
-    } VertexInfo;
-
+    // Getting three-dimensional for realz.
+    // I'm putting different colors on the different triangles,
+    // so I can't really use DrawElements
     static const VertexInfo pyramidData[] = {
         // Bottom
         { 0.0f, 0.f, .5f, 255, 0, 0},
@@ -72,11 +76,30 @@ void setupPyramid(ShapeInfo *pInfo)
         { 0.0f, 0.75f, 0.f, 0, 255, 0},
     };
 
-    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pyramidData[0].x);
-    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pyramidData[0].red);
-
     pInfo->count = 12;
     pInfo->indices = NULL;
+    pInfo->vertexInfo = pyramidData;
+}
+
+// Second shape, to demonstrate how to switch back and forth
+void setupFins(ShapeInfo *pInfo)
+{
+  GLuint vboId(0);
+
+  static const VertexInfo finData[] = {
+    // Triangle 1
+    { -.5f, -.5f, 0.f, 255, 0, 0 },
+    { .5f, -.5f, 0.f, 255, 0, 0 },
+    { 0.f, .5f, 0.f, 255, 0, 0 },
+    // Triangle 2
+    { 0.f, -.5f, -.5f, 0, 255, 0 },
+    { 0.f, -.5f, .5f, 0, 255, 0 },
+    { 0.f, .5f, 0.f, 0, 255, 0 },
+  };
+
+  pInfo->count = 6;
+  pInfo->indices = NULL;
+  pInfo->vertexInfo = finData;
 }
 
 void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double scale, ShapeInfo *pInfo)
@@ -84,8 +107,12 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslated(-x, -y, NEAR_Z+z);
+    // Now using Rotate
     glRotated(rotyDegrees, 0., 1., 0.);
     glScaled(scale, scale, scale);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(VertexInfo), &pInfo->vertexInfo[0].x);
+    glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexInfo), &pInfo->vertexInfo[0].red);
 
     if (pInfo->indices) {
         glDrawElements(GL_TRIANGLES, pInfo->count, GL_UNSIGNED_SHORT, pInfo->indices);
@@ -107,15 +134,19 @@ int main(int argc, char *argv[])
         // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
         glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
 
+        ShapeInfo pyramid;
+        setupPyramid(&pyramid);
+
+        ShapeInfo fins;
+        setupFins(&fins);
+
         for (int i = 0; i < 400; i++) {
             double z = -1 - i/200.;
             double angle = i/30.;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            ShapeInfo info;
-            setupPyramid(&info);
-            drawTrianglesAt(cos(angle), sin(angle), z, i*3., 2., &info);
-            drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), z, i, 1.5, &info);
-            drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), z, i*10., 1.2, &info);
+            drawTrianglesAt(cos(angle), sin(angle), z, i*3., 2., &pyramid);
+            drawTrianglesAt(cos(angle + 2 * M_PI / 3.), sin(angle + 2 * M_PI / 3.), z, i, 1.5, &fins);
+            drawTrianglesAt(cos(angle + 4 * M_PI / 3.), sin(angle + 4 * M_PI / 3.), z, i*10., 1.2, &pyramid);
 
             SDL_GL_SwapBuffers();
         }

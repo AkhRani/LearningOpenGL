@@ -109,11 +109,18 @@ int main(int argc, char *argv[])
         GLdouble ratio = 640.0f / 480.0f;
         glOrtho(-ratio, ratio, -1, 1, -1, 1);
 
+        // This doesn't introduce and new OpenGL features, but it's kind of fun
+        // to see stuff move, so there you are.
         for (int i = 0; i < 400; i++) {
             double sinVal = sin(i/30.);
             double cosVal = cos(i/30.);
             glClear(GL_COLOR_BUFFER_BIT);
             ShapeInfo info;
+
+            // Note that setupSquare and setupPentagon each call
+            // glVertexPointer and glColorPointer every time through the loop.
+            // Exercise:  What happens if you declare two ShapeInfo structs
+            // and move the setup functions outside the loop?
             setupSquare(&info);
             drawTrianglesAt(0, 0, 0.5, &info);
             drawTrianglesAt(0.707 * cosVal, 0.707 * sinVal, 0.25, &info);

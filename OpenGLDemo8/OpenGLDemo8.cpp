@@ -69,6 +69,8 @@ void setupPentagon(ShapeInfo *pInfo)
 void drawTrianglesAt(double x, double y, double z, double scale, ShapeInfo *pInfo)
 {
     glMatrixMode(GL_MODELVIEW);
+    // I think you've seen enough of our hand-coded matrix for now, so let's
+    // just use the tools OpenGL gives us.
     glLoadIdentity();
     glTranslated(x, y, z);
     glScaled(scale, scale, 1.);
@@ -84,21 +86,28 @@ int main(int argc, char *argv[])
 
         glMatrixMode(GL_PROJECTION);
         GLdouble ratio = 640.0f / 480.0f;
+        // Exercise:  We're finally exploring THE THIRD DIMENSION, but what happens if we
+        // keep using an orthographic projection?
         // glOrtho(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
         glFrustum(-ratio, ratio, -1., 1., CENTER_Z - DEPTH_OF_FIELD/2, CENTER_Z + DEPTH_OF_FIELD/2);
+
+        // Exercise:  What the hell is a frustum?  Mess with the depth of field
+        // and center Z, and see how it affects the animation.  Read up on
+        // frustums, and use the debugger see what the projection matrix looks like.
         GLfloat projection[16];
         glGetFloatv(GL_PROJECTION_MATRIX, projection);
+
+        ShapeInfo pentagon;
+        setupPentagon(&pentagon);
 
         for (int i = 0; i < 400; i++) {
             double z = -CENTER_Z + DEPTH_OF_FIELD/2 - i/200.;     // from -1 to -3
             double sinVal = sin(i/30.);
             double cosVal = cos(i/30.);
             glClear(GL_COLOR_BUFFER_BIT);
-            ShapeInfo info;
-            setupPentagon(&info);
-            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, z, .5, &info);
-            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, z, .4, &info);
-            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, z, .3, &info);
+            drawTrianglesAt(-.707 * cosVal, -.707 * sinVal, z, .5, &pentagon);
+            drawTrianglesAt(-.707 * cosVal, .707 * sinVal, z, .4, &pentagon);
+            drawTrianglesAt(.707 * cosVal, -.707 * sinVal, z, .3, &pentagon);
 
             SDL_GL_SwapBuffers();
         }

@@ -1,6 +1,6 @@
 /*
  * Demo 4:
- * Switched from glBegin/glEnd to glDrawArrays
+ * Switched from glBegin/glEnd to glDrawArrays (OpenGL 1.1)
  *
  * See README.txt for prerequisites.
  */
@@ -30,6 +30,10 @@ bool initializeSdl()
 
 void drawSquare()
 {
+    // Using glColorPointer and glVertexColor along with glDrawArrays lets us
+    // avoid all of those tedious individual calls to glColor and glVertex.
+    // This feature was added in OpenGL 1.1.
+    // We'll move these back into a more organized structure soon.
     static const GLfloat squareCoords[] = {
         -0.5f, 0.5f,   0.5f, 0.5f,   0.5f, -0.5f,
         0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f
@@ -64,6 +68,8 @@ void drawSquareAt(double x, double y)
 int main(int argc, char *argv[])
 {
     if (initializeSdl()) {
+        // If we don't set these flags, OpenGL will ignore our calls
+        // to glVertexPointer and glColor Pointer.
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
 

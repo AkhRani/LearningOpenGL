@@ -1,6 +1,6 @@
 /*
  * Demo 6:
- * Switched from glDrawArrays to glDrawElements
+ * Switched from glDrawArrays to glDrawElements (OpenGL 1.2.1)
  *
  * See README.txt for prerequisites.
  */
@@ -33,6 +33,13 @@ bool initializeSdl()
     return true;
 }
 
+// Our old data had a lot of redundant information in it.
+// Every triangle had all three points in the Vertex and Color
+// buffers, even though most of the points were used by more than
+// one triangle.  With complex shapes, it would be a lot of wasted
+// effort to shuffle that information to the GPU.
+// Wouldn't it be nice if we could re-use point information for multiple
+// triangles?  Well, as of OpenGL 1.2.1, we can!
 void setupSquare(ShapeInfo *pInfo)
 {
     static const GLfloat squareCoords[] = {
@@ -92,6 +99,7 @@ void drawTrianglesAt(double x, double y, double scale, ShapeInfo *pInfo)
     };
     glLoadMatrixd(modelViewMatrix);
 
+    // Added in OpenGL 1.2.1
     glDrawElements(GL_TRIANGLES, pInfo->count, GL_UNSIGNED_SHORT, pInfo->indices);
 }
 

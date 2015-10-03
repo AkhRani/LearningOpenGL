@@ -69,6 +69,7 @@ void setupShaders()
         "out vec4 fColor;\n"
         "void \n"
         "main() {\n"
+        // Exercise:  Which one of these actually coloring the pixels?
         "    fAnotherColor = vec4(0, 255, 0, 255);\n"
         "    fColor = vec4(color, 255);\n"
         "}\n"
@@ -130,6 +131,7 @@ void setupPyramid(ShapeInfo *pInfo)
     pInfo->vboId = vboId;
 }
 
+// The frustum won't be changing, so just set it up once
 void setupFrustum(float left, float right, float bottom, float top, float near, float far)
 {
     g_ProjectionMatrix = vmath::frustum(left, right, bottom, top, near, far);
@@ -137,6 +139,9 @@ void setupFrustum(float left, float right, float bottom, float top, float near, 
 
 void drawTrianglesAt(float x, float y, float z, float rotyDegrees, float scale, ShapeInfo *pInfo)
 {
+    // Since we're setting up our own uniform, we can't use the functions that
+    // manipulate the built-in matrix uniforms any more.  vmath to the rescue.
+
     // glMatrixMode(GL_MODELVIEW);
     // glLoadIdentity();
     // glTranslated(x, y, z - CENTER_Z);

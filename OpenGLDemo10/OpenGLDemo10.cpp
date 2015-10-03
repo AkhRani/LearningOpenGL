@@ -74,6 +74,7 @@ void drawTrianglesAt(double x, double y, double z, double rotyDegrees, double sc
 
 void onDisplay()
 {
+    // Exercise:  Can you get the animation going again?
     int i = 0;
     double z = -i/200.;
     double angle = i/30.;
@@ -93,6 +94,7 @@ void onKey(unsigned char key, int x, int y)
 
 int main(int argc, char *argv[])
 {
+    // No new OpenGL functionality this time, just a switch from SDL to glew/glut.
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(640, 480);

@@ -34,18 +34,27 @@ bool initializeSdl()
 void drawSquare()
 {
     glBegin(GL_TRIANGLES);
+    // For each vertex, we now assign a color before we set the position
+    // Colors can be unsigned bytes, in which
+    // case the range for each component is 0-255.
     glColor3ub(255, 0, 0);
     glVertex2f(-0.5f, 0.5f);
+
     glColor3ub(0, 255, 0);
     glVertex2f(0.5f, 0.5f);
-    glColor3ub(0, 0, 255);
-    glVertex2f(0.5f, -0.5f);
 
     glColor3ub(0, 0, 255);
     glVertex2f(0.5f, -0.5f);
-    glColor3ub(255, 255, 255);
+
+    // Colors can also be floats, in which case the range is 0 - 1.0
+    glColor3f(0, 0, 1.0);
+    glVertex2f(0.5f, -0.5f);
+
+    glColor3f(1.0, 1.0, 1.0);
     glVertex2f(-0.5f, -0.5f);
-    glColor3ub(255, 0, 0);
+
+    // Exercise:  What if this color doesn't match the color of the first vertex?
+    glColor3f(1.0, 0, 0);
     glVertex2f(-0.5f, 0.5f);
     glEnd();
 }
@@ -53,7 +62,10 @@ void drawSquare()
 int main(int argc, char *argv[])
 {
     if (initializeSdl()) {
+        // Tell GL what matrix we want to modify
         glMatrixMode(GL_PROJECTION);
+
+        // Orthographic projection, which ignores depth.
         GLdouble ratio = 640.0f / 480.0f;
         glOrtho(-ratio, ratio, -1, 1, -1, 1);
 

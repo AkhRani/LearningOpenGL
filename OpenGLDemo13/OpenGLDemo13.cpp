@@ -1,9 +1,7 @@
 /*
  * Demo 13:
  * Switched from built-in attributes to user-defined attributes.
- *
- * gl_Vector, gl_Color, etc. were deprecated in OpenGL 3 / GLSL 1.3,
- * in favor of user-defined attributes.
+ * Reduced use of other built-ins
  *
  * See README.txt for prerequisites.
  */
@@ -37,14 +35,18 @@ void setupShaders()
     GLchar infoLog[4096];
     GLsizei length;
 
-
+    // Note the vertex shader no longer reads gl_Vector or gl_Color,
+    // or writes to gl_Position or gl_FrontColor
     const GLchar *vertShaderSource[] = {
       "#version 120\n"
-      "attribute vec4 vPosition;"
-      "attribute vec3 vColor;"
+      "attribute vec4 vPosition;\n"
+      "attribute vec3 vColor;\n"
+      // This varColor will get linked to the varColor in the
+      // fragment shader in glLinkProgram.
+      "varying vec4 varColor;\n"
       "void main() {\n"
-      "    gl_Position = gl_ModelViewProjectionMatrix * vPosition;"
-      "    gl_FrontColor = vec4(vColor, 1.0);"
+          "gl_Position = gl_ModelViewProjectionMatrix * vPosition;"
+          "varColor = vec4(vColor, 1.0);"
       "}\n"
     };
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -54,8 +56,9 @@ void setupShaders()
 
     const GLchar *fragShaderSource[] = {
         "#version 120\n"
+        "varying vec4 varColor;\n"
         "void main() {\n"
-        "    gl_FragColor = gl_Color;\n"
+            "gl_FragColor = varColor;\n"
         "}\n"
     };
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -105,6 +108,8 @@ void setupPyramid(ShapeInfo *pInfo)
 
     // Instead of calling glVertexPointer and glColorPointer, we use the
     // general purpose glVertexAttribPointer to set the offsets for our user-defined attributes.
+    // User-defiend attributes were supported in OpenGL 2.0 / GLSL 1.2,
+    // and most-built-in attributes were deprecated in OpenGL 3 / GLSL 1.3.
     GLuint vpos = glGetAttribLocation(g_progid, "vPosition");
     glVertexAttribPointer(vpos, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (GLvoid*)offsetof(VertexInfo, x));
     glEnableVertexAttribArray(vpos);
